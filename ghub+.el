@@ -83,7 +83,7 @@ See `ghub-unpaginate'."
   "Convert PLIST to an alist.
 Alist keys will be symbols and its values will be coerced into
 strings."
-  (when (oddp (length plist))
+  (when (= 1 (mod (length plist) 2))
     (error "bad plist"))
   (ghubp--plist->alist-internal plist nil))
 
