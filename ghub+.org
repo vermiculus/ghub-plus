@@ -1,0 +1,80 @@
+#+NAME: ghub+ usage manual
+
+* Introduction
+This package is a thick client built on =ghub=, the miniscule GitHub
+client.  Its aim is to provide the common functionality most helpful
+for application development.
+
+Since =ghub+= is built on =ghub=, any and all features you find lacking in
+=ghub+= can be done with =ghub= without needing to dig into either
+package's internals.  However, =ghub+= provides some macros you may find
+helpful in development; see [[id:7208D9BD-1524-4701-A061-70861C5376DA][Extending]] for details.  If you find your
+function to be particularly helpful or believe it to be a common use
+case, please consider [[id:1F4644C5-72AC-49DA-A83C-443AA7F9651E][contributing]] it to the library!
+
+* Library Reference
+
+** ~(ghub-issues REPO &rest PARAMS)~
+Get issues from the repository represented by ~REPO~.  ~PARAMS~ is a
+keyword-value list of parameters to add to the request URL.
+
+* Extending
+  :PROPERTIES:
+  :ID:       7208D9BD-1524-4701-A061-70861C5376DA
+  :END:
+To simplify application development, tools have been developed to
+shorten repetitive syntax and provide useful syntax for common
+problems that might not otherwise have good, succinct solutions.
+
+** ~(ghub-plist->alist PLIST)~
+Convert a plist into an alist like so:
+#+BEGIN_SRC elisp
+  (ghub-plist->alist '(:sort updated :state all))
+#+END_SRC
+yields
+#+BEGIN_SRC elisp
+  ((sort . "updated")
+   (state . "all"))
+#+END_SRC
+
+This is the format required for the ~PARAMS~ and ~DATA~ parameters of the
+=ghub= verbs.
+
+** ~(ghub-unpaginate &rest BODY)~
+Wraps the form in a let-binding where ~ghub-unpaginate~ is ~t~.  Forms
+executed here will continue to poll the API until all output has been
+received.
+
+** ~(ghub-resolve-api-params OBJECT URL &optional NOENCODE)~
+Expands ~URL~, which must be a string literal, according to values in
+the ~OBJECT~ alist.  ~OBJECT~ is expected to be the same general format
+that =ghub= generally returns as output from its verbs.
+
+*** Example: Retrieving Issues
+In this example, we're getting the repository object from the API and
+immediately getting its issues and pull-requests.
+
+#+BEGIN_SRC elisp
+  (let ((repo (ghub-get "/repos/tarsius/ghub")))
+    (ghub-get (ghub-resolve-api-params repo
+                "/repos/:owner.login/:name/issues")))
+#+END_SRC
+
+Note that since ~(ghub-get "/repos/tarsius/ghub")~ returns
+# comment here to avoid breaking when the paragraph is filled
+~((name . "ghub") (owner (login . "tarsius")) ...)~,
+#
+~ghub-resolve-api-params~ replaced the =:owner.login= in the ~URL~ with the
+=owner.login= value from the alist.  Repeated for =:name=, the macro
+eventually gave us =/repos/tarsius/ghub/issues=.
+
+* Contributing
+  :PROPERTIES:
+  :ID:       1F4644C5-72AC-49DA-A83C-443AA7F9651E
+  :END:
+Contributions should be made via pull-request.  When it makes sense,
+be sure your addition works when passing around object-alists.
+
+# Local Variables:
+# org-id-link-to-org-use-id: t
+# End:
