@@ -60,10 +60,13 @@ immediately getting its issues and pull-requests.
                 "/repos/:owner.login/:name/issues")))
 #+END_SRC
 
-Note that since ~(ghubp-get "/repos/tarsius/ghub")~ returns
-# comment here to avoid breaking when the paragraph is filled
-~((name . "ghub") (owner (login . "tarsius")) ...)~,
-#
+Note that since
+#+BEGIN_SRC elisp
+  (equal (ghubp-get "/repos/tarsius/ghub")
+         ((name . "ghub")
+          ;; ...
+          (owner (login . "tarsius"))))
+#+END_SRC
 ~ghub-resolve-api-params~ replaced the =:owner.login= in the ~URL~ with the
 =owner.login= value from the alist.  Repeated for =:name=, the macro
 eventually gave us =/repos/tarsius/ghub/issues=.
