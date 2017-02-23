@@ -27,7 +27,8 @@
 
 (require 'ghub)
 
-(defmacro ghub-resolve-api-params (object url &optional noencode)
+;;; Utilities
+(defmacro ghubp-resolve-api-params (object url &optional noencode)
   "Resolve parameters in URL to values in OBJECT.
 
 Unless NOENCODE is non-nil, OBJECT values will be passed through
@@ -35,7 +36,7 @@ Unless NOENCODE is non-nil, OBJECT values will be passed through
 
 Example:
 
-\(ghub-resolve-api-params
+\(ghubp-resolve-api-params
     '((name . \"Hello-World\")
       \(owner (login . \"octocat\")))
   \"/repos/:owner.login/:name/issues\")
@@ -73,20 +74,20 @@ Example:
           (insert ")")
           (delete "" (read (buffer-string)))))))
 
-(defmacro ghub-unpaginate (&rest body)
+(defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses and execute BODY.
 See `ghub-unpaginate'."
   `(let ((ghub-unpaginate t)) ,@body))
 
-(defun ghub-plist->alist (plist)
+(defun ghubp-plist->alist (plist)
   "Convert PLIST to an alist.
 Alist keys will be symbols and its values will be coerced into
 strings."
   (when (oddp (length plist))
     (error "bad plist"))
-  (ghub--plist->alist-internal plist nil))
+  (ghubp--plist->alist-internal plist nil))
 
-(defun ghub--plist->alist-internal (plist alist-build)
+(defun ghubp--plist->alist-internal (plist alist-build)
   (if plist (cons (let ((key (car plist))
                         (val (cadr plist)))
                     (cons (intern (substring (symbol-name key) 1))
@@ -94,13 +95,14 @@ strings."
                            ((stringp val) val)
                            ((symbolp val) (symbol-name val))
                            (t (error "unhandled case")))))
-                  (ghub--plist->alist-internal (cddr plist) alist-build))))
+                  (ghubp--plist->alist-internal (cddr plist) alist-build))))
 
-(defun ghub-issues (repo &rest params)
+;;; Issues
+(defun ghubp-issues (repo &rest params)
   "Get a list of issues for REPO."
-  (ghub-get (ghub-resolve-api-params repo
+  (ghub-get (ghubp-resolve-api-params repo
               "/repos/:owner.login/:name/issues")
-            (ghub-plist->alist params)))
+            (ghubp-plist->alist params)))
 
 (provide 'ghub+)
 ;;; ghub+.el ends here

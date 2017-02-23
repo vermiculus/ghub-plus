@@ -14,7 +14,7 @@ case, please consider [[id:1F4644C5-72AC-49DA-A83C-443AA7F9651E][contributing]] 
 
 * Library Reference
 
-** ~(ghub-issues REPO &rest PARAMS)~
+** ~(ghubp-issues REPO &rest PARAMS)~
 Get issues from the repository represented by ~REPO~.  ~PARAMS~ is a
 keyword-value list of parameters to add to the request URL.
 
@@ -26,10 +26,10 @@ To simplify application development, tools have been developed to
 shorten repetitive syntax and provide useful syntax for common
 problems that might not otherwise have good, succinct solutions.
 
-** ~(ghub-plist->alist PLIST)~
+** ~(ghubp-plist->alist PLIST)~
 Convert a plist into an alist like so:
 #+BEGIN_SRC elisp
-  (ghub-plist->alist '(:sort updated :state all))
+  (ghubp-plist->alist '(:sort updated :state all))
 #+END_SRC
 yields
 #+BEGIN_SRC elisp
@@ -40,12 +40,12 @@ yields
 This is the format required for the ~PARAMS~ and ~DATA~ parameters of the
 =ghub= verbs.
 
-** ~(ghub-unpaginate &rest BODY)~
+** ~(ghubp-unpaginate &rest BODY)~
 Wraps the form in a let-binding where ~ghub-unpaginate~ is ~t~.  Forms
 executed here will continue to poll the API until all output has been
 received.
 
-** ~(ghub-resolve-api-params OBJECT URL &optional NOENCODE)~
+** ~(ghubp-resolve-api-params OBJECT URL &optional NOENCODE)~
 Expands ~URL~, which must be a string literal, according to values in
 the ~OBJECT~ alist.  ~OBJECT~ is expected to be the same general format
 that =ghub= generally returns as output from its verbs.
@@ -56,11 +56,11 @@ immediately getting its issues and pull-requests.
 
 #+BEGIN_SRC elisp
   (let ((repo (ghub-get "/repos/tarsius/ghub")))
-    (ghub-get (ghub-resolve-api-params repo
+    (ghub-get (ghubp-resolve-api-params repo
                 "/repos/:owner.login/:name/issues")))
 #+END_SRC
 
-Note that since ~(ghub-get "/repos/tarsius/ghub")~ returns
+Note that since ~(ghubp-get "/repos/tarsius/ghub")~ returns
 # comment here to avoid breaking when the paragraph is filled
 ~((name . "ghub") (owner (login . "tarsius")) ...)~,
 #
