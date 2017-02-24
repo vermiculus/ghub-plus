@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 
 ;;; Code:
 
@@ -65,7 +65,7 @@ Example:
            (if in-string (insert "\"")
              (unless noencode (insert ")")))
            (insert ")")
-           (delete "" (read (buffer-string)))))))))
+           (delete "" (read (buffer-string))))))))
 
 (defun ghubp-plist->alist (plist)
   "Convert PLIST to an alist.
@@ -168,6 +168,7 @@ new function.  If nil, it is ignored.
 
 If non-nil, INTERNAL-RESOURCE is the resource used to resolve
 OBJECT to the ultimate call." (upcase (symbol-name method)))
+             (declare (indent defun))
              `',(ghubp--defresource ',method resource doc version link object internal-resource)))))
 
 (provide 'ghub+dev)
