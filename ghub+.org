@@ -12,26 +12,12 @@ helpful in development; see [[id:7208D9BD-1524-4701-A061-70861C5376DA][Extending
 function to be particularly helpful or believe it to be a common use
 case, please consider [[id:1F4644C5-72AC-49DA-A83C-443AA7F9651E][contributing]] it to the library!
 
-** Tour by Example
-
-#+BEGIN_SRC elisp
-  ;;; GET /issues
-  (ghubp-get-issues)
-
-  ;;; GET /issues?state=closed
-  (ghubp-get-issues :state 'closed)
-
-  (let ((repo (ghub-get "/repos/magit/magit")))
-    (list
-     ;; Magit's issues
-     ;; GET /repos/magit/magit/issues
-     (ghubp-get-repos-owner-repo-issues repo)
-
-     ;; Magit's closed issues labeled 'easy'
-     ;; GET /repos/magit/magit/issues?state=closed&labels=easy
-     (ghubp-get-repos-owner-repo-issues repo
-       :state 'closed :labels "easy")))
-#+END_SRC
+* Contributing
+  :PROPERTIES:
+  :ID:       1F4644C5-72AC-49DA-A83C-443AA7F9651E
+  :END:
+Contributions should be made via pull-request.  When it makes sense,
+be sure your addition works when passing around object-alists.
 
 * Extending
   :PROPERTIES:
@@ -132,7 +118,7 @@ Consider the definition of ~ghubp-get-repos-owner-repo-issues~:
     3 "issues/#list-issues-for-a-repository"
     repo "/repos/:owner.login/:name/issues")
 #+END_SRC
-We've provided two extra parameters, =repo= and the string
+We've provided two extra parameters: =repo= and the string
 =/repos/:owner.login/:name/issues=. Since ~ghubp-defget~ is a macro, =repo=
 is a just a symbol that will be used in the argument list of the
 generated function (and inserted into its docstring according to
@@ -149,13 +135,6 @@ the context of our =repo= object using syntax akin to ~let-alist~:
      (name . "ghub-plus")))
   ;; calls GET /repos/vermiculus/ghub-plus/issues
 #+END_SRC
-
-* Contributing
-  :PROPERTIES:
-  :ID:       1F4644C5-72AC-49DA-A83C-443AA7F9651E
-  :END:
-Contributions should be made via pull-request.  When it makes sense,
-be sure your addition works when passing around object-alists.
 
 # Local Variables:
 # org-id-link-to-org-use-id: t

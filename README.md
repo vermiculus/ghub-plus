@@ -26,6 +26,6 @@ GitHub API client.
      :state 'closed :labels "easy")))
 ```
 
-See also [`ghub+.org`][manual].
+See [`ghub+.org`][manual] for the full manual.
 
 [manual]: //github.com/vermiculus/ghub-plus/blob/master/ghub%2B.org
