@@ -89,7 +89,7 @@ strings."
   '((repo . "REPO is a repository alist of the form returned by `/user/repos'.")
     (org  . "ORG is an organization alist of the form returned by `/user/orgs'.")))
 
-(defun ghubp--defresource (method external-resource doc version link object internal-resource)
+(defun ghubp--defresource (backend method external-resource doc version link object internal-resource)
   "Define a new resource."
   (declare (indent defun) (doc-string 3))
   (setq internal-resource (or internal-resource external-resource))
@@ -98,9 +98,11 @@ strings."
          (symbol (replace-regexp-in-string ":" ""  symbol t t))
          (symbol (intern (concat "ghubp-" (symbol-name method) symbol)))
          (args (append (if object (list object)) '(&optional data &rest params)))
-         (ghub-func (plist-get (list 'get #'ghub-get 'put #'ghub-put
-                                     'head #'ghub-head 'post #'ghub-post
-                                     'patch #'ghub-patch 'delete #'ghub-delete)
+         (ghub-func (plist-get (cond
+                                ((eq backend 'ghub)
+                                 (list 'get #'ghub-get 'put #'ghub-put
+                                       'head #'ghub-head 'post #'ghub-post
+                                       'patch #'ghub-patch 'delete #'ghub-delete)))
                                method))
          (object-param-doc (alist-get object ghubp--standard-parameters))
          (fmt-str "%s
@@ -127,24 +129,24 @@ which is documented at
         (error "Standard parameter `%s' not documented in `ghubp--standard-parameters'" object))
       (unless (string= object-param-doc "")
         (setq object-param-doc (concat object-param-doc "\n\n"))))
-    (eval `(defun ,symbol ,args ,(format fmt-str doc object-param-doc (make-string 20 ?-)
-                                         (upcase (symbol-name method))
-                                         external-resource version link)
-                  (declare (indent defun))
-                  (apply ',ghub-func
-                         ,(ghubp-resolve-api-params object internal-resource)
-                         (if (= 0 (mod (length params) 2))
-                             ;; if params has an even number of
-                             ;; elements (i.e., it's balanced), then
-                             ;; `data' is real.
-                             (list (ghubp-plist->alist params) data)
-                           ;; otherwise, it's part of params
-                           (list (ghubp-plist->alist (cons data params)))))))
-    (put symbol 'ghubp-api-version version)
-    (put symbol 'ghubp-api-method method)
-    (put symbol 'ghubp-api-endpoint external-resource)
-    (put symbol 'ghubp-api-documentation link)
-    symbol))
+    `(prog1
+         (defun ,symbol ,args ,(format fmt-str doc object-param-doc (make-string 20 ?-)
+                                       (upcase (symbol-name method))
+                                       external-resource version link)
+                (declare (indent defun))
+                (apply ',ghub-func
+                       ,(ghubp-resolve-api-params object internal-resource)
+                       (if (= 0 (mod (length params) 2))
+                           ;; if params has an even number of
+                           ;; elements (i.e., it's balanced), then
+                           ;; `data' is real.
+                           (list (ghubp-plist->alist params) data)
+                         ;; otherwise, it's part of params
+                         (list (ghubp-plist->alist (cons data params))))))
+       (put ',symbol 'ghubp-api-version       ,version)
+       (put ',symbol 'ghubp-api-method        ',method)
+       (put ',symbol 'ghubp-api-endpoint      ,external-resource)
+       (put ',symbol 'ghubp-api-documentation ,link))))
 
 (dolist (method '(get put head post patch delete))
   (let ((symbol (intern (concat "ghubp-def" (symbol-name method)))))
@@ -169,7 +171,7 @@ new function.  If nil, it is ignored.
 If non-nil, INTERNAL-RESOURCE is the resource used to resolve
 OBJECT to the ultimate call." (upcase (symbol-name method)))
              (declare (indent defun) (doc-string 2))
-             `',(ghubp--defresource ',method resource doc version link object internal-resource)))))
+             (ghubp--defresource 'ghub ',method resource doc version link object internal-resource)))))
 
 (provide 'ghub+dev)
 ;;; ghub+dev.el ends here
