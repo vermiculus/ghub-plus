@@ -12,11 +12,26 @@ helpful in development; see [[id:7208D9BD-1524-4701-A061-70861C5376DA][Extending
 function to be particularly helpful or believe it to be a common use
 case, please consider [[id:1F4644C5-72AC-49DA-A83C-443AA7F9651E][contributing]] it to the library!
 
-* Library Reference
+** Tour by Example
 
-** ~(ghubp-issues REPO &rest PARAMS)~
-Get issues from the repository represented by ~REPO~.  ~PARAMS~ is a
-keyword-value list of parameters to add to the request URL.
+#+BEGIN_SRC elisp
+  ;;; GET /issues
+  (ghubp-get-issues)
+
+  ;;; GET /issues?state=closed
+  (ghubp-get-issues :state 'closed)
+
+  (let ((repo (ghub-get "/repos/magit/magit")))
+    (list
+     ;; Magit's issues
+     ;; GET /repos/magit/magit/issues
+     (ghubp-get-repos-owner-repo-issues repo)
+
+     ;; Magit's closed issues labeled 'easy'
+     ;; GET /repos/magit/magit/issues?state=closed&labels=easy
+     (ghubp-get-repos-owner-repo-issues repo
+       :state 'closed :labels "easy")))
+#+END_SRC
 
 * Extending
   :PROPERTIES:
@@ -26,50 +41,114 @@ To simplify application development, tools have been developed to
 shorten repetitive syntax and provide useful syntax for common
 problems that might not otherwise have good, succinct solutions.
 
-** ~(ghubp-plist->alist PLIST)~
-Convert a plist into an alist like so:
-#+BEGIN_SRC elisp
-  (ghubp-plist->alist '(:sort updated :state all))
-#+END_SRC
-yields
-#+BEGIN_SRC elisp
-  ((sort . "updated")
-   (state . "all"))
-#+END_SRC
-
-This is the format required for the ~PARAMS~ and ~DATA~ parameters of the
-=ghub= verbs.
-
 ** ~(ghubp-unpaginate &rest BODY)~
 Wraps the form in a let-binding where ~ghub-unpaginate~ is ~t~.  Forms
 executed here will continue to poll the API until all output has been
 received.
 
-** ~(ghubp-resolve-api-params OBJECT URL &optional NOENCODE)~
-Expands ~URL~, which must be a string literal, according to values in
-the ~OBJECT~ alist.  ~OBJECT~ is expected to be the same general format
-that =ghub= generally returns as output from its verbs.
+** ~(ghubp-def{get,put,head,post,patch,delete} ...)~
+These wonderful macros super-charge the standard ~ghub-{get,put,...}~
+functions into documentation-generating, resource-wrapping machines.
+To understand them, let's disect both ~ghubp-get-issues~ and
+~ghubp-get-repos-owner-repo-issues~.
 
-*** Example: Retrieving Issues
-In this example, we're getting the repository object from the API and
-immediately getting its issues and pull-requests.
-
+*** A simple use-case
+Here is the definition of ~ghubp-get-issues~:
 #+BEGIN_SRC elisp
-  (let ((repo (ghub-get "/repos/tarsius/ghub")))
-    (ghub-get (ghubp-resolve-api-params repo
-                "/repos/:owner.login/:name/issues")))
+  (ghubp-defget "/issues"
+    "List all issues assigned to the authenticated user across all
+  visible repositories including owned repositories, member
+  repositories, and organization repositories."
+    3 "issues/#list-issues")
+#+END_SRC
+If we refer to the documentation of ~ghubp-defget~, we'll see that
+="/issues"= is the method call as written in the linked GitHub API
+documentation ([[https://developer.github.com/v3/issues/#list-issues][reference]]).  A brief docstring is provided (here copied
+from the API) as well as the API version this resource corresponds to.
+
+If we now inspect the documentation of ~ghubp-get-issues~, we'll see all
+of our information included in the docstring:
+#+BEGIN_EXAMPLE
+  ghubp-get-issues is a Lisp function.
+
+  (ghubp-get-issues &optional DATA &rest PARAMS)
+
+  For more information check the manuals.
+
+  List all issues assigned to the authenticated user across all
+  visible repositories including owned repositories, member
+  repositories, and organization repositories.
+
+  PARAMS is a plist of parameters appended to the method call.
+
+  DATA is a data structure (understandable by ‘json-encode-list’)
+  to be sent with this request.  If it’s not required, it can
+  simply be omitted.
+
+  --------------------
+
+  This generated function wraps
+
+      GET /issues
+
+  which is documented at
+
+      URL ‘https://developer.github.com/v3/issues/#list-issues’
+#+END_EXAMPLE
+In addition to the documentation we provided, the =DATA= and =PARAMS=
+parameters have been added to the function and appropriately
+documented.  At the end of the documentaton, we report that the
+function was generated from a raw method call and where that method is
+fully documented (e.g., what =PARAMS= it accepts, what the format of
+=DATA= is, etc.).
+
+*** On-the-fly parameters
+Each function defined with the ~ghubp-def*~ macros accepts =PARAMS= as a
+=&rest= argument.  This argument is effectively a list of keyword
+arguments to the method call -- similar to how =&keys= works in Common
+Lisp.  However, collecting them as a list allows us to perform generic
+processing on them (with ~ghubp-plist->alist~) so that they can be
+passed straight to the ~ghub-{get,put,...}~ primitives.  For example,
+#+BEGIN_SRC elisp
+  ;; retrieve closed issues
+  (ghubp-get-issues :state 'closed)
+#+END_SRC
+Passed symbols are converted to strings, but you can skip this step as
+needed:
+#+BEGIN_SRC elisp
+  ;; retrieve issues with both the `bug' and `ui' labels
+  (ghubp-get-issues :labels "bug,ui")
 #+END_SRC
 
-Note that since
+*** A complex use-case
+Of course, many method calls accept 'interpolated' parameters
+(so-called for lack of a better phrase).  Thanks to some very slick
+macro-magic, ~ghubp-def*~ can handle these, too!
+
+Consider the definition of ~ghubp-get-repos-owner-repo-issues~:
 #+BEGIN_SRC elisp
-  (equal (ghubp-get "/repos/tarsius/ghub")
-         ((name . "ghub")
-          ;; ...
-          (owner (login . "tarsius"))))
+  (ghubp-defget "/repos/:owner/:repo/issues"
+    "List issues for a repository."
+    3 "issues/#list-issues-for-a-repository"
+    repo "/repos/:owner.login/:name/issues")
 #+END_SRC
-~ghub-resolve-api-params~ replaced the =:owner.login= in the ~URL~ with the
-=owner.login= value from the alist.  Repeated for =:name=, the macro
-eventually gave us =/repos/tarsius/ghub/issues=.
+We've provided two extra parameters, =repo= and
+="/repos/:owner.login/:name/issues"=. Since ~ghubp-defget~ is a macro, =repo=
+is a just a symbol that will be used in the argument list of the
+generated function (and inserted into its docstring according to
+~ghubp--standard-parameters~).
+
+This second string is where things get interesting.  This argument
+overrides the first, as-documented method call for a very specific
+purpose.  When our new function is used, this string is evaluated in
+the context of our =repo= object using syntax akin to ~let-alist~:
+#+BEGIN_SRC elisp
+  ;; repo "/repos/:owner.login/:name/issues"
+  (ghubp-get-repos-owner-repo-issues
+   '((owner (login . "vermiculus"))
+     (name . "ghub-plus")))
+  ;; calls GET /repos/vermiculus/ghub-plus/issues
+#+END_SRC
 
 * Contributing
   :PROPERTIES:

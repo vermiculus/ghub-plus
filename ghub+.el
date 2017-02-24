@@ -4,6 +4,9 @@
 
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
+;; Homepage: https://github.com/vermiculus/ghub-plus
+;; Package-Requires: ((emacs "25") (ghub "20160808.538"))
+;; Package-Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,83 +29,49 @@
 ;;; Code:
 
 (require 'ghub)
+(eval-when-compile
+  (require 'ghub+dev))
 
 ;;; Utilities
-(defmacro ghubp-resolve-api-params (object url &optional noencode)
-  "Resolve parameters in URL to values in OBJECT.
-
-Unless NOENCODE is non-nil, OBJECT values will be passed through
-`url-encode-url'.
-
-Example:
-
-\(ghubp-resolve-api-params
-    '((name . \"Hello-World\")
-      \(owner (login . \"octocat\")))
-  \"/repos/:owner.login/:name/issues\")
-=> \"/repos/octocat/Hello-World/issues\"
-
-"
-  (declare (indent 1))
-  (unless noencode
-    (require 'url))
-  (unless (stringp url)
-    (error "URL must be literal"))
-  ;; I realize the hackiness of this, but it works and it's evaluated
-  ;; compile-time
-  `(let-alist ,object
-     ,(let (in-string)
-        (with-temp-buffer
-          (insert url)
-          (goto-char 0)
-          (insert "(concat \"")
-          (while (search-forward ":" nil t)
-            (goto-char (1- (point)))
-            (insert "\" ")
-            (unless noencode (insert "(url-encode-url "))
-            (insert ".")
-            (setq in-string nil)
-            (delete-char 1)
-            (when (search-forward "/" nil t)
-              (goto-char (1- (point)))
-              (unless noencode (insert ")"))
-              (insert " \"")
-              (setq in-string t)))
-          (goto-char (point-max))
-          (if in-string (insert "\"")
-            (unless noencode (insert ")")))
-          (insert ")")
-          (delete "" (read (buffer-string)))))))
 
 (defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses and execute BODY.
 See `ghub-unpaginate'."
   `(let ((ghub-unpaginate t)) ,@body))
 
-(defun ghubp-plist->alist (plist)
-  "Convert PLIST to an alist.
-Alist keys will be symbols and its values will be coerced into
-strings."
-  (when (= 1 (mod (length plist) 2))
-    (error "bad plist"))
-  (ghubp--plist->alist-internal plist nil))
+;;; Repositories
+(ghubp-defget "/repos/:owner/:repo/collaborators"
+  "List collaborators."
+  3 "repos/collaborators/#list-collaborators"
+  repo "/repos/:owner.login/:name/comments")
 
-(defun ghubp--plist->alist-internal (plist alist-build)
-  (if plist (cons (let ((key (car plist))
-                        (val (cadr plist)))
-                    (cons (intern (substring (symbol-name key) 1))
-                          (cond
-                           ((stringp val) val)
-                           ((symbolp val) (symbol-name val))
-                           (t (error "unhandled case")))))
-                  (ghubp--plist->alist-internal (cddr plist) alist-build))))
+(ghubp-defget "/repos/:owner/:repo/comments"
+  "List commit comments for a repository."
+  3 "repos/comments/#list-commit-comments-for-a-repository"
+  repo "/repos/:owner.login/:name/comments")
 
 ;;; Issues
-(defun ghubp-issues (repo &rest params)
-  "Get a list of issues for REPO."
-  (ghub-get (ghubp-resolve-api-params repo
-              "/repos/:owner.login/:name/issues")
-            (ghubp-plist->alist params)))
+(ghubp-defget "/issues"
+  "List all issues assigned to the authenticated user across all
+visible repositories including owned repositories, member
+repositories, and organization repositories."
+  3 "issues/#list-issues")
+
+(ghubp-defget "/user/issues"
+  "List all issues across owned and member repositories assigned
+to the authenticated user."
+  3 "issues/#list-issues")
+
+(ghubp-defget "/orgs/:org/issues"
+  "List all issues for a given organization assigned to the
+authenticated user."
+  3 "issues/#list-issues"
+  org "/org/:login/issues")
+
+(ghubp-defget "/repos/:owner/:repo/issues"
+  "List issues for a repository."
+  3 "issues/#list-issues-for-a-repository"
+  repo "/repos/:owner.login/:name/issues")
 
 (provide 'ghub+)
 ;;; ghub+.el ends here
