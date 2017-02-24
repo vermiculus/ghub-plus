@@ -150,9 +150,9 @@ which is documented at
     (eval `(defmacro ,symbol (resource doc version link &optional object internal-resource)
              ,(format "Define a new %s resource wrapper function.
 
-EXTERNAL-RESOURCE is the API endpoint as written in the GitHub
-API documentation.  This string will be used to create the symbol
-for the new function.
+RESOURCE is the API endpoint as written in the GitHub API
+documentation.  This string will be used to create the symbol for
+the new function.
 
 DOC is a documentation string.  Usually, this can be copied from
 the GitHub API documentation.
