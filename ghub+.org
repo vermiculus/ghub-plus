@@ -62,7 +62,7 @@ Here is the definition of ~ghubp-get-issues~:
     3 "issues/#list-issues")
 #+END_SRC
 If we refer to the documentation of ~ghubp-defget~, we'll see that
-="/issues"= is the method call as written in the linked GitHub API
+=/issues= is the method call as written in the linked GitHub API
 documentation ([[https://developer.github.com/v3/issues/#list-issues][reference]]).  A brief docstring is provided (here copied
 from the API) as well as the API version this resource corresponds to.
 
@@ -132,8 +132,8 @@ Consider the definition of ~ghubp-get-repos-owner-repo-issues~:
     3 "issues/#list-issues-for-a-repository"
     repo "/repos/:owner.login/:name/issues")
 #+END_SRC
-We've provided two extra parameters, =repo= and
-="/repos/:owner.login/:name/issues"=. Since ~ghubp-defget~ is a macro, =repo=
+We've provided two extra parameters, =repo= and the string
+=/repos/:owner.login/:name/issues=. Since ~ghubp-defget~ is a macro, =repo=
 is a just a symbol that will be used in the argument list of the
 generated function (and inserted into its docstring according to
 ~ghubp--standard-parameters~).
