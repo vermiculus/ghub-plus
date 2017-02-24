@@ -168,7 +168,7 @@ new function.  If nil, it is ignored.
 
 If non-nil, INTERNAL-RESOURCE is the resource used to resolve
 OBJECT to the ultimate call." (upcase (symbol-name method)))
-             (declare (indent defun))
+             (declare (indent defun) (doc-string 2))
              `',(ghubp--defresource ',method resource doc version link object internal-resource)))))
 
 (provide 'ghub+dev)
