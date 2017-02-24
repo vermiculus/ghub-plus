@@ -86,7 +86,8 @@ strings."
                   (ghubp--plist->alist-internal (cddr plist) alist-build))))
 
 (defconst ghubp--standard-parameters
-  '((repo . "REPO is a repository alist of the form returned by `/user/repos'.")))
+  '((repo . "REPO is a repository alist of the form returned by `/user/repos'.")
+    (org  . "ORG is an organization alist of the form returned by `/user/orgs'.")))
 
 (defun ghubp--defresource (method external-resource doc version link object internal-resource)
   "Define a new resource."
