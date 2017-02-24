@@ -101,7 +101,7 @@ strings."
                                      'head #'ghub-head 'post #'ghub-post
                                      'patch #'ghub-patch 'delete #'ghub-delete)
                                method))
-         (object-param-doc (alist-get object ghubp--standard-parameters ""))
+         (object-param-doc (alist-get object ghubp--standard-parameters))
          (fmt-str "%s
 
 %sPARAMS is a plist of parameters appended to the method call.
@@ -123,7 +123,7 @@ which is documented at
       (error "No function for method %S" method))
     (when object
       (unless object-param-doc
-        (error "Standard parameter %s not documented in `ghubp--standard-parameters'" object))
+        (error "Standard parameter `%s' not documented in `ghubp--standard-parameters'" object))
       (unless (string= object-param-doc "")
         (setq object-param-doc (concat object-param-doc "\n\n"))))
     (eval `(defun ,symbol ,args ,(format fmt-str doc object-param-doc (make-string 20 ?-)
