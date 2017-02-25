@@ -5,7 +5,7 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (ghub "20160808.538"))
+;; Package-Requires: ((emacs "25") (apiwrap "0.1") (ghub "20160808.538"))
 ;; Package-Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -29,8 +29,14 @@
 ;;; Code:
 
 (require 'ghub)
+(require 'apiwrap)
+
 (eval-when-compile
-  (require 'ghub+dev))
+  (apiwrap-new-backend "GitHub" "ghubp"
+    ((repo . "REPO is a repository alist of the form returned by `/user/repos'.")
+     (org  . "ORG is an organization alist of the form returned by `/user/orgs'."))
+    (lambda (version link) (format "https://developer.github.com/v%d/%s" version link))
+    ghub-get ghub-put ghub-head ghub-post ghub-patch ghub-delete))
 
 ;;; Utilities
 
