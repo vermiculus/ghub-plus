@@ -1,7 +1,7 @@
 GHub+
 =====
 
-A thick GitHub API client built on [`ghub`][ghub], the miniscule
+A thick GitHub API client built on [`ghub`][ghub], the minuscule
 GitHub API client.
 
 [ghub]: //github.com/tarsius/ghub
