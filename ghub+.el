@@ -31,13 +31,43 @@
 (require 'ghub)
 (require 'apiwrap)
 
+(defun ghubp--make-link (alist)
+  "Create a link from an ALIST of API endpoint properties."
+  (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
+
+(defun ghubp--process-params (params)
+  "Process PARAMS from textual data to Lisp structures."
+  (mapcar (lambda (p)
+            (let ((k (car p)) (v (cdr p)))
+              (cons k (alist-get v '((t . "true") (nil . "false")) v))))
+          params))
+
+(defun ghubp--remove-api-links (object)
+  "Remove everything in OBJECT that points back to `api.github.com'."
+  ;; execution time overhead of 0.5%
+  (delq nil (if (and (consp object) (consp (car object)))
+                (mapcar #'ghubp--remove-api-links object)
+              (if (consp object)
+                  (unless (and (stringp (cdr object))
+                               (string-match-p (rx bos (+ alnum) "://api.github.com/")
+                                               (cdr object)))
+                    (cons (car object)
+                          (if (consp (cdr object))
+                              (mapcar #'ghubp--remove-api-links (cdr object))
+                            (cdr object))))))))
+
 (eval-when-compile
-  (apiwrap-new-backend "GitHub" "ghubp"
-    ((repo . "REPO is a repository alist of the form returned by `/user/repos'.")
-     (org  . "ORG is an organization alist of the form returned by `/user/orgs'."))
-    (lambda (version link) (format "https://developer.github.com/v%d/%s" version link))
-    ghub-get ghub-put ghub-head ghub-post ghub-patch ghub-delete
-    :post-process remove-api-links))
+  (apiwrap-new-backend
+   "GitHub" "ghubp"
+   '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
+     (org  . "ORG is an organization alist of the form returned by `ghubp-get-user-orgs'.")
+     (thread . "THREAD is a thread"))
+   :link #'ghubp--make-link
+   :get #'ghub-get :put #'ghub-put :head #'ghub-head
+   :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
+   :post-process #'ghubp--remove-api-links
+   :pre-process-params #'ghubp--process-params))
+
 
 ;;; Utilities
 (defmacro ghubp-unpaginate (&rest body)
@@ -45,19 +75,18 @@
 See `ghub-unpaginate'."
   `(let ((ghub-unpaginate t)) ,@body))
 
-(defun remove-api-links (object)
-  "Remove everything in OBJECT that points back to `api.github.com'."
-  ;; execution time overhead of 0.5%
-  (delq nil (if (and (consp object) (consp (car object)))
-                (mapcar #'remove-api-links object)
-              (if (consp object)
-                  (unless (and (stringp (cdr object))
-                               (string-match-p (rx bos (+ alnum) "://api.github.com/")
-                                               (cdr object)))
-                    (cons (car object)
-                          (if (consp (cdr object))
-                              (mapcar #'remove-api-links (cdr object))
-                            (cdr object))))))))
+(defun ghubp-keep-only (structure object)
+  "Keep a specific STRUCTURE in OBJECT.
+See URL `http://emacs.stackexchange.com/a/31050/2264'."
+  (declare (indent 1))
+  (if (and (consp object) (consp (car object)) (consp (caar object)))
+      (mapcar (apply-partially #'ghubp-keep-only structure) object)
+    (mapcar (lambda (el)
+              (if (consp el)
+                  (cons (car el)
+                        (ghubp-keep-only (cdr el) (alist-get (car el) object)))
+                (cons el (alist-get el object))))
+            structure)))
 
 ;;; Repositories
 (defapiget-ghubp "/repos/:owner/:repo/collaborators"
