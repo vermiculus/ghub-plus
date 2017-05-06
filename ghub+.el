@@ -132,7 +132,7 @@ authenticated user."
 (defapiget-ghubp "/repos/:owner/:repo"
   "List issues for a repository."
   "issues/#list-issues-for-a-repository"
-  (repo) "/repos/:repo.owner.login/:repo.name/issues")
+  (repo) "/repos/:repo.owner.login/:repo.name")
 
 (defapiget-ghubp "/repos/:owner/:repo/labels"
   "List labels for a repository"
