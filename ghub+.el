@@ -183,8 +183,14 @@ authenticated user."
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
 
 (defun ghubp-url-parse (url)
-  "Parse URL and return the type of resource it is a callback
-suitable for `ghub-get', etc."
+  "Parse URL for its type and API callback.
+
+A cons cell is returned.  The car is one of
+
+ - `issue'
+ - `pull-request'
+
+and the cdr is a callback suitable for `ghub-get', etc."
   (let ((callback (url-filename (url-generic-parse-url url))))
     (cons
      (cond
