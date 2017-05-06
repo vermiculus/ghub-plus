@@ -42,19 +42,22 @@
               (cons k (alist-get v '((t . "true") (nil . "false")) v))))
           params))
 
-(defun ghubp--remove-api-links (object)
+(defun ghubp--remove-api-links (object &optional preserve-objects)
   "Remove everything in OBJECT that points back to `api.github.com'."
   ;; execution time overhead of 0.5%
-  (delq nil (if (and (consp object) (consp (car object)))
-                (mapcar #'ghubp--remove-api-links object)
-              (if (consp object)
-                  (unless (and (stringp (cdr object))
-                               (string-match-p (rx bos (+ alnum) "://api.github.com/")
-                                               (cdr object)))
-                    (cons (car object)
-                          (if (consp (cdr object))
-                              (mapcar #'ghubp--remove-api-links (cdr object))
-                            (cdr object))))))))
+  (let ((recurse (lambda (o) (ghubp--remove-api-links o preserve-objects))))
+    (delq nil (if (and (consp object) (consp (car object)))
+                  (mapcar recurse object)
+                (if (consp object)
+                    (if (memq (car object) preserve-objects)
+                        object
+                      (unless (and (stringp (cdr object))
+                                   (string-match-p (rx bos (+ alnum) "://api.github.com/")
+                                                   (cdr object)))
+                        (cons (car object)
+                              (if (consp (cdr object))
+                                  (mapcar recurse (cdr object))
+                                (cdr object))))))))))
 
 (eval-when-compile
   (apiwrap-new-backend
@@ -92,12 +95,12 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
 (defapiget-ghubp "/repos/:owner/:repo/collaborators"
   "List collaborators."
   "repos/collaborators/#list-collaborators"
-  repo "/repos/:owner.login/:name/comments")
+  (repo) "/repos/:repo.owner.login/:repo.name/comments")
 
 (defapiget-ghubp "/repos/:owner/:repo/comments"
   "List commit comments for a repository."
   "repos/comments/#list-commit-comments-for-a-repository"
-  repo "/repos/:owner.login/:name/comments")
+  (repo) "/repos/:repo.owner.login/:repo.name/comments")
 
 ;;; Issues
 (defapiget-ghubp "/issues"
@@ -115,7 +118,7 @@ to the authenticated user."
   "List all issues for a given organization assigned to the
 authenticated user."
   "issues/#list-issues"
-  org "/org/:login/issues")
+  (org) "/org/:org.login/issues")
 
 (defapiget-ghubp "/repos/:owner/:repo/issues"
   "List issues for a repository."
