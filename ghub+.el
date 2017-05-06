@@ -71,7 +71,6 @@
    :post-process #'ghubp--remove-api-links
    :pre-process-params #'ghubp--process-params))
 
-
 ;;; Utilities
 (defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses and execute BODY.
@@ -123,7 +122,76 @@ authenticated user."
 (defapiget-ghubp "/repos/:owner/:repo/issues"
   "List issues for a repository."
   "issues/#list-issues-for-a-repository"
-  repo "/repos/:owner.login/:name/issues")
+  (repo) "/repos/:repo.owner.login/:repo.name/issues")
+
+(defapiget-ghubp "/repos/:owner/:repo"
+  "List issues for a repository."
+  "issues/#list-issues-for-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues")
+
+(defapiget-ghubp "/repos/:owner/:repo/labels"
+  "List labels for a repository"
+  "issues/labels/#list-all-labels-for-this-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/labels")
+
+(defapiget-ghubp "/repos/:owner/:repo/commits/:ref/statuses"
+  "List statuses for a specific ref"
+  "repos/statuses/#list-statuses-for-a-specific-ref"
+  (repo ref) "/repos/:repo.owner.login/:repo.name/commits/:ref/statuses")
+
+(defapiget-ghubp "/repos/:owner/:repo/commits/:ref/status"
+  "Get the combined status for a specific ref"
+  "repos/statuses/#get-the-combined-status-for-a-specific-ref"
+  (repo ref) "/repos/:repo.owner.login/:repo.name/commits/:ref/status")
+
+(defapiget-ghubp "/user"
+  "Return the currently authenticated user"
+  "users/#get-the-authenticated-user")
+
+(defapiget-ghubp "/user/repos"
+  "Return repositories of the currently authenticated user"
+  "issues/#list-issues-for-a-repository")
+
+(defapiget-ghubp "/notifications"
+  "List all notifications for the current user, grouped by repository"
+  "activity/notifications/#list-your-notifications"
+  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+
+(defapipatch-ghubp "/notifications/threads/:id"
+  ""
+  "activity/notifications/#mark-a-thread-as-read"
+  (thread) "/notifications/threads/:thread.id")
+
+(defapiget-ghubp "/notifications/threads/:id"
+  "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
+  "activity/notifications/#view-a-single-thread"
+  (thread) "/notifications/threads/:thread.id"
+  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+
+(defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
+  "Post a comment to an issue"
+  "issues/comments/#create-a-comment"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number/comments"
+  "List comments on an issue"
+  "issues/comments/#list-comments-on-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
+
+(defun ghubp-url-parse (url)
+  "Parse URL and return the type of resource it is a callback
+suitable for `ghub-get', etc."
+  (let ((callback (url-filename (url-generic-parse-url url))))
+    (cons
+     (cond
+      ((string-match-p (rx bol "/repos/" (+? any) "/" (+? any) "/issues/" (+ digit) eol)
+                       callback)
+       'issue)
+      ((string-match-p (rx bol "/repos/" (+? any) "/" (+? any) "/pulls/" (+ digit) eol)
+                       callback)
+       'pull-request)
+      (t 'unknown))
+     callback)))
 
 (provide 'ghub+)
 ;;; ghub+.el ends here
