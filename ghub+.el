@@ -28,6 +28,7 @@
 
 ;;; Code:
 
+(require 'url)
 (require 'ghub)
 (require 'apiwrap)
 
