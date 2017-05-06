@@ -5,7 +5,7 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (apiwrap "0.1") (ghub "20160808.538"))
+;; Package-Requires: ((emacs "25") (apiwrap "0.1.2") (ghub "1.2"))
 ;; Package-Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -23,51 +23,55 @@
 
 ;;; Commentary:
 
-;; Provides some sugar for ghub.  See `ghub+.org' (which should have
-;; been distributed with this file) for usage instructions.
+;; Provides some sugar for `ghub'.  See package `apiwrap' for
+;; generated function usage instructions.
 
 ;;; Code:
 
 (require 'ghub)
 (require 'apiwrap)
 
-(defun ghubp--make-link (alist)
-  "Create a link from an ALIST of API endpoint properties."
-  (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
-
-(defun ghubp--process-params (params)
-  "Process PARAMS from textual data to Lisp structures."
-  (mapcar (lambda (p)
-            (let ((k (car p)) (v (cdr p)))
-              (cons k (alist-get v '((t . "true") (nil . "false")) v))))
-          params))
-
-(defun ghubp--remove-api-links (object &optional preserve-objects)
-  "Remove everything in OBJECT that points back to `api.github.com'."
-  ;; execution time overhead of 0.5%
-  (let ((recurse (lambda (o) (ghubp--remove-api-links o preserve-objects))))
-    (delq nil (if (and (consp object) (consp (car object)))
-                  (mapcar recurse object)
-                (if (consp object)
-                    (if (memq (car object) preserve-objects)
-                        object
-                      (unless (and (stringp (cdr object))
-                                   (string-match-p (rx bos (+ alnum) "://api.github.com/")
-                                                   (cdr object)))
-                        (cons (car object)
-                              (if (consp (cdr object))
-                                  (mapcar recurse (cdr object))
-                                (cdr object))))))))))
-
 (eval-when-compile
+  (defun ghubp--make-link (alist)
+    "Create a link from an ALIST of API endpoint properties."
+    (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
+
+  (defun ghubp--process-params (params)
+    "Process PARAMS from textual data to Lisp structures."
+    (mapcar (lambda (p)
+              (let ((k (car p)) (v (cdr p)))
+                (cons k (alist-get v '((t . "true") (nil . "false")) v))))
+            params))
+
+  (defun ghubp--remove-api-links (object &optional preserve-objects)
+    "Remove everything in OBJECT that points back to `api.github.com'.
+
+If PRESERVE-OBJECTS is non-nil, those objects will not be
+stripped of references."
+    ;; execution time overhead of 0.5%
+    (let ((recurse (lambda (o) (ghubp--remove-api-links o preserve-objects))))
+      (delq nil (if (and (consp object) (consp (car object)))
+                    (mapcar recurse object)
+                  (if (consp object)
+                      (if (memq (car object) preserve-objects)
+                          object
+                        (unless (and (stringp (cdr object))
+                                     (string-match-p (rx bos (+ alnum) "://api.github.com/")
+                                                     (cdr object)))
+                          (cons (car object)
+                                (if (consp (cdr object))
+                                    (mapcar recurse (cdr object))
+                                  (cdr object))))))))))
+
   (apiwrap-new-backend
    "GitHub" "ghubp"
    '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
      (org  . "ORG is an organization alist of the form returned by `ghubp-get-user-orgs'.")
      (thread . "THREAD is a thread"))
-   :link #'ghubp--make-link
    :get #'ghub-get :put #'ghub-put :head #'ghub-head
    :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
+
+   :link #'ghubp--make-link
    :post-process #'ghubp--remove-api-links
    :pre-process-params #'ghubp--process-params))
 
