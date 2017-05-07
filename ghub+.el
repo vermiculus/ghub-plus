@@ -37,7 +37,7 @@
     "Create a link from an ALIST of API endpoint properties."
     (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
 
-  (defun ghubp--process-params (params)
+  (defun ghubp--stringify-params (params)
     "Process PARAMS from textual data to Lisp structures."
     (mapcar (lambda (p)
               (let ((k (car p)) (v (cdr p)))
@@ -64,6 +64,14 @@ stripped of references."
                                     (mapcar recurse (cdr object))
                                   (cdr object))))))))))
 
+  (defun ghubp--pre-process-params (params)
+    (thread-first params
+      (ghubp--stringify-params)))
+
+  (defun ghubp--post-process (object &optional preserve-objects)
+    (thread-first object
+      (ghubp--remove-api-links preserve-objects)))
+
   (apiwrap-new-backend
    "GitHub" "ghubp"
    '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
@@ -73,8 +81,8 @@ stripped of references."
    :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
 
    :link #'ghubp--make-link
-   :post-process #'ghubp--remove-api-links
-   :pre-process-params #'ghubp--process-params))
+   :post-process #'ghubp--post-process
+   :pre-process-params #'ghubp--pre-process-params))
 
 ;;; Utilities
 (defmacro ghubp-unpaginate (&rest body)
@@ -160,7 +168,7 @@ authenticated user."
 (defapiget-ghubp "/notifications"
   "List all notifications for the current user, grouped by repository"
   "activity/notifications/#list-your-notifications"
-  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+  :post-process (lambda (o) (ghubp--post-process o '(subject))))
 
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
@@ -171,7 +179,7 @@ authenticated user."
   "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
   "activity/notifications/#view-a-single-thread"
   (thread) "/notifications/threads/:thread.id"
-  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+  :post-process (lambda (o) (ghubp--post-process o '(subject))))
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "Post a comment to an issue"

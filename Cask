@@ -5,6 +5,5 @@
 
 (package-file "ghub+.el")
 
-;;; These packages are installed with `cask install'
 (development
  (depends-on "ert-runner"))
