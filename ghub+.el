@@ -121,6 +121,11 @@ visible repositories including owned repositories, member
 repositories, and organization repositories."
   "issues/#list-issues")
 
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number"
+  "Get a single issue."
+  "issues/#get-a-single-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
 (defapiget-ghubp "/user/issues"
   "List all issues across owned and member repositories assigned
 to the authenticated user."
@@ -170,10 +175,35 @@ authenticated user."
   "activity/notifications/#list-your-notifications"
   :post-process (lambda (o) (ghubp--post-process o '(subject))))
 
+(defapipost-ghubp "/repos/:owner/:repo/issues"
+  "Create an issue.
+Any user with pull access to a repository can create an issue."
+  "issues/#create-an-issue"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues")
+
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
   "activity/notifications/#mark-a-thread-as-read"
   (thread) "/notifications/threads/:thread.id")
+
+(defapipost-ghubp "/repos/:owner/:repo/forks"
+  "Create a fork for the authenticated user."
+  "repos/forks/#create-a-fork"
+  (repo) "/repos/:repo.owner.login/:repo.name/forks")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls"
+  "Open a pull request."
+  "pulls/#create-a-pull-request"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls"
+  :validate-data
+  (lambda (o)
+    (--all? (let ((v (alist-get it o)))
+              (and v (stringp v) (< 0 (length v))))
+            '(title head base))))
+
+(defapipost-ghubp "/user/repos"
+  "Create a fork for the authenticated user."
+  "repos/forks/#create-a-fork")
 
 (defapiget-ghubp "/notifications/threads/:id"
   "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
