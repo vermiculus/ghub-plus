@@ -1,7 +1,7 @@
 #+Title: GHub+  [[https://travis-ci.org/vermiculus/ghub-plus][https://travis-ci.org/vermiculus/ghub-plus.svg?branch=master]]
 
-GHub+ is a thick GitHub API client built on =ghub=, [[https://github.com/tarsius/ghub][the minuscule GitHub
-API client]].
+GHub+ is a thick GitHub API client built using =API-Wrap.el= on =ghub=,
+[[https://github.com/tarsius/ghub][the minuscule GitHub API client]].
 
 * Tour by Example
 #+BEGIN_SRC elisp
