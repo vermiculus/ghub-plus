@@ -1,4 +1,4 @@
-;;; ghub+.el --- a thick GitHub API client built ghub  -*- lexical-binding: t; -*-
+;;; ghub+.el --- a thick GitHub API client built on ghub  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2017  Sean Allred
 
