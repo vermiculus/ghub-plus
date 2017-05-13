@@ -181,6 +181,11 @@ Any user with pull access to a repository can create an issue."
   "issues/#create-an-issue"
   (repo) "/repos/:repo.owner.login/:repo.name/issues")
 
+(defapipatch-ghubp "/repos/:owner/:repo/issues/:number"
+  "Issue owners and users with push access can edit an issue."
+  "issues/#edit-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
   "activity/notifications/#mark-a-thread-as-read"
