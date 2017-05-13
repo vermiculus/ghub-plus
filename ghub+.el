@@ -1,11 +1,11 @@
-;;; ghub+.el --- a thick GitHub API client built ghub  -*- lexical-binding: t; -*-
+;;; ghub+.el --- a thick GitHub API client built on ghub  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2017  Sean Allred
 
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (apiwrap "0.1.2") (ghub "1.2"))
+;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.1.2"))
 ;; Package-Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@
     "Create a link from an ALIST of API endpoint properties."
     (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
 
-  (defun ghubp--process-params (params)
+  (defun ghubp--stringify-params (params)
     "Process PARAMS from textual data to Lisp structures."
     (mapcar (lambda (p)
               (let ((k (car p)) (v (cdr p)))
@@ -64,6 +64,14 @@ stripped of references."
                                     (mapcar recurse (cdr object))
                                   (cdr object))))))))))
 
+  (defun ghubp--pre-process-params (params)
+    (thread-first params
+      (ghubp--stringify-params)))
+
+  (defun ghubp--post-process (object &optional preserve-objects)
+    (thread-first object
+      (ghubp--remove-api-links preserve-objects)))
+
   (apiwrap-new-backend
    "GitHub" "ghubp"
    '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
@@ -73,8 +81,8 @@ stripped of references."
    :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
 
    :link #'ghubp--make-link
-   :post-process #'ghubp--remove-api-links
-   :pre-process-params #'ghubp--process-params))
+   :post-process #'ghubp--post-process
+   :pre-process-params #'ghubp--pre-process-params))
 
 ;;; Utilities
 (defmacro ghubp-unpaginate (&rest body)
@@ -112,6 +120,11 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
 visible repositories including owned repositories, member
 repositories, and organization repositories."
   "issues/#list-issues")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number"
+  "Get a single issue."
+  "issues/#get-a-single-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
 (defapiget-ghubp "/user/issues"
   "List all issues across owned and member repositories assigned
@@ -160,18 +173,43 @@ authenticated user."
 (defapiget-ghubp "/notifications"
   "List all notifications for the current user, grouped by repository"
   "activity/notifications/#list-your-notifications"
-  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+  :post-process (lambda (o) (ghubp--post-process o '(subject))))
+
+(defapipost-ghubp "/repos/:owner/:repo/issues"
+  "Create an issue.
+Any user with pull access to a repository can create an issue."
+  "issues/#create-an-issue"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues")
 
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
   "activity/notifications/#mark-a-thread-as-read"
   (thread) "/notifications/threads/:thread.id")
 
+(defapipost-ghubp "/repos/:owner/:repo/forks"
+  "Create a fork for the authenticated user."
+  "repos/forks/#create-a-fork"
+  (repo) "/repos/:repo.owner.login/:repo.name/forks")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls"
+  "Open a pull request."
+  "pulls/#create-a-pull-request"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls"
+  :validate-data
+  (lambda (o)
+    (--all? (let ((v (alist-get it o)))
+              (and v (stringp v) (< 0 (length v))))
+            '(title head base))))
+
+(defapipost-ghubp "/user/repos"
+  "Create a fork for the authenticated user."
+  "repos/forks/#create-a-fork")
+
 (defapiget-ghubp "/notifications/threads/:id"
   "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
   "activity/notifications/#view-a-single-thread"
   (thread) "/notifications/threads/:thread.id"
-  :post-process (lambda (o) (ghubp--remove-api-links o '(subject))))
+  :post-process (lambda (o) (ghubp--post-process o '(subject))))
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "Post a comment to an issue"

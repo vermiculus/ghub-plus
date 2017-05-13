@@ -1,7 +1,3 @@
-(require 'package)
-(package-initialize)
-(package-install-file "ghub+.el")
-
 (require 'ghub)
 (require 'ghub+)
 

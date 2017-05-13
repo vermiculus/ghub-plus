@@ -1,10 +1,9 @@
-(source gnu)
 (source melpa)
+(source gnu)
+
+(package "ghub+" "0.1" "Wrappers for GitHub API resources built on ghub")
 
 (package-file "ghub+.el")
 
-(files "*.el")
-
 (development
- (depends-on "ert")
  (depends-on "ert-runner"))

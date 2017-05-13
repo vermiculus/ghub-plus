@@ -3,6 +3,8 @@
 GHub+ is a thick GitHub API client built on =ghub=, [[https://github.com/tarsius/ghub][the minuscule GitHub
 API client]].
 
+[[https://travis-ci.org/vermiculus/ghub-plus][https://travis-ci.org/vermiculus/ghub-plus.svg?branch=master]]
+
 * Tour by Example
 #+BEGIN_SRC elisp
   ;;; GET /issues
@@ -55,7 +57,7 @@ Wraps the form in a let-binding where ~ghub-unpaginate~ is ~t~.  Forms
 executed here will continue to poll the API until all output has been
 received.
 
-** ~(ghubp-def{get,put,head,post,patch,delete} ...)~
+** ~(defapi{get,put,head,post,patch,delete}-ghubp ...)~
 These wonderful macros super-charge the standard ~ghub-{get,put,...}~
 functions into documentation-generating, resource-wrapping machines.
 Refer to their documentation or see [[https://github.com/vermiculus/apiwrap.el#using-the-generated-macros][apiwrap.el]] for a short tutorial in
