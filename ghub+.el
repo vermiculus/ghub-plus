@@ -32,7 +32,7 @@
 (require 'ghub)
 (require 'apiwrap)
 
-(eval-when-compile
+(eval-and-compile
   (defun ghubp--make-link (alist)
     "Create a link from an ALIST of API endpoint properties."
     (format "https://developer.github.com/v3/%s" (alist-get 'link alist)))
