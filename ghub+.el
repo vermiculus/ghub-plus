@@ -76,7 +76,12 @@ stripped of references."
    "GitHub" "ghubp"
    '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
      (org  . "ORG is an organization alist of the form returned by `ghubp-get-user-orgs'.")
-     (thread . "THREAD is a thread"))
+     (thread . "THREAD is a thread object of the form returned by `ghubp-get-repos-owner-repo-comments'.")
+     (issue . "ISSUE is an issue object of the form returned by `ghubp-get-issues'.")
+     (label . "LABEL is a label object of the form returned by `ghubp-get-repos-owner-repo-issues-number-labels'.")
+     (ref . "REF is a string and can be a SHA, a branch name, or a tag name.")
+     (milestone . "MILESTONE is a milestone object.")
+     (user . "USER is a user object."))
    :get #'ghub-get :put #'ghub-put :head #'ghub-head
    :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
 

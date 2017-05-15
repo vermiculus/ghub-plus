@@ -11,12 +11,15 @@
           (repo  (ghubp-get-repos-owner-repo repo)))
      (= 82884749 (alist-get 'id repo)))))
 
-(ert-deftest linter ()
-  (should-not (memq nil (mapcar #'lint (lint-api-forms "ghub+.el")))))
+(ert-deftest lint-unused-args ()
+  (should (lint "ghub+.el" #'lint-unused-args 'per-form)))
+
+(ert-deftest lint-undeclared-args ()
+  (should (lint "ghub+.el" #'lint-undeclared-standard-args)))
 
 (ert-deftest linter-selftest ()
   (message ">>> Start linter self-tests")
-  (should-not (lint '(defapiget-ghubp "/rate_limit" "" "" (repo issue) "/:repo.thing")))
-  (should (lint '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url"
-                   :post-process (lambda (o) (ghubp--post-process o '(subject))))))
+  (should (lint-unused-args '(defapiget-ghubp "/rate_limit" "" "" (repo issue) "/:repo.thing")))
+  (should-not (lint-unused-args '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url"
+                                   :post-process (lambda (o) (ghubp--post-process o '(subject))))))
   (message "<<< End linter self-tests"))
