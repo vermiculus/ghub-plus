@@ -231,6 +231,24 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
 
+;;; Issue Events
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number/events"
+  ;; note: :number changed from :issue_number for consistency
+  "List events for an issue."
+  "issues/events/#list-events-for-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/events")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/events"
+  "List events for a repository."
+  "issues/events/#list-events-for-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues/events")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/events/:id"
+  "Get a single event."
+  "issues/events/#get-a-single-event"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
