@@ -19,7 +19,26 @@
 
 (ert-deftest linter-selftest ()
   (message ">>> Start linter self-tests")
+
   (should (lint-unused-args '(defapiget-ghubp "/rate_limit" "" "" (repo issue) "/:repo.thing")))
   (should-not (lint-unused-args '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url"
                                    :post-process (lambda (o) (ghubp--post-process o '(subject))))))
+  (should-not (lint-unused-args '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url")))
+
+  (should (lint-standard-args-undeclared--internal
+           '(defapiget-ghubp "/some_call_with_new_args" "some-doc" "some-link" (repo issue weird) "")
+           '(repo issue)))
+  (should-not (lint-standard-args-undeclared--internal
+               '(defapiget-ghubp "/some_call_with_new_args" "some-doc" "some-link" (repo issue) "")
+               '(repo issue)))
+  (should-not (lint-standard-args-undeclared--internal
+               '(defapiget-ghubp "/some_call_with_new_args" "some-doc" "some-link" (repo) "")
+               '(repo issue)))
+  (should-not (lint-standard-args-undeclared--internal
+               '(defapiget-ghubp "/some_call_with_new_args" "some-doc" "some-link" "")
+               '(repo issue)))
+  (should-not (lint-standard-args-undeclared--internal
+               '(defapiget-ghubp "/some_call_with_new_args" "some-doc" "some-link")
+               '(repo issue)))
+
   (message "<<< End linter self-tests"))

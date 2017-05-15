@@ -76,25 +76,27 @@ return them.  Return nil if there are no offenders."
   "Get the list of standard vars from BACKEND."
   (mapcar #'car (cadr (nth 3 backend))))
 
-(defun lint-standard-args-undeclared--internal (forms std-args)
-  "Find forms in FORMS that use args not in STD-ARGS"
+(defun lint-standard-args-undeclared--internal (form std-args)
+  "Non-nil if FORM uses args not in STD-ARGS"
   (let (fail)
-    (dolist (form forms)
-      (when (listp (nth 4 form))
-        (dolist (std-arg (nth 4 form))
-          (unless (memq std-arg std-args)
-            (setq fail t)
-            (message "Undeclared standard argument in '%s': %S"
-                     (lint-format-defapi-form form)
-                     std-arg)))))
+    (when (listp (nth 4 form))
+      (dolist (std-arg (nth 4 form))
+        (unless (memq std-arg std-args)
+          (setq fail t)
+          (message "Undeclared standard argument in '%s': %S"
+                   (lint-format-defapi-form form)
+                   std-arg))))
     fail))
 
 (defun lint-undeclared-standard-args (filename)
   "Wrapper for `lint-standard-args-undeclared--internal'."
-  (lint-standard-args-undeclared--internal
-   (lint-api-forms filename)
-   (lint-standard-args-undeclared--get-std-vars
-    (lint-standard-args-undeclared--get-backend filename))))
+  (let ((forms (lint-api-forms filename))
+        (stdargs (lint-standard-args-undeclared--get-std-vars
+                  (lint-standard-args-undeclared--get-backend filename)))
+        fail)
+    (dolist (form forms)
+      (setq fail (or (lint-standard-args-undeclared--internal form stdargs) fail)))
+    fail))
 
 (defun lint (filename lint-function &optional per-form)
   "Run all linting checks on forms in FILENAME."
