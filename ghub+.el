@@ -121,11 +121,6 @@ visible repositories including owned repositories, member
 repositories, and organization repositories."
   "issues/#list-issues")
 
-(defapiget-ghubp "/repos/:owner/:repo/issues/:number"
-  "Get a single issue."
-  "issues/#get-a-single-issue"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
-
 (defapiget-ghubp "/user/issues"
   "List all issues across owned and member repositories assigned
 to the authenticated user."
@@ -142,9 +137,39 @@ authenticated user."
   "issues/#list-issues-for-a-repository"
   (repo) "/repos/:repo.owner.login/:repo.name/issues")
 
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number"
+  "Get a single issue."
+  "issues/#get-a-single-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
+(defapipost-ghubp "/repos/:owner/:repo/issues"
+  "Create an issue.
+Any user with pull access to a repository can create an issue."
+  "issues/#create-an-issue"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues")
+
+(defapipatch-ghubp "/repos/:owner/:repo/issues/:number"
+  "Edit an issue.
+Issue owners and users with push access can edit an issue."
+  "issues/#edit-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
+(defapiput-ghubp "/repos/:owner/:repo/issues/:number/lock"
+  "Lock an issue.
+Users with push access can lock an issue's conversation."
+  "issues/#lock-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
+(defapidelete-ghubp "/repos/:owner/:repo/issues/:number/lock"
+  "Unlock an issue
+Users with push access can unlock an issue's conversation."
+  "issues/#unlock-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
+
+;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
-  "List issues for a repository."
-  "issues/#list-issues-for-a-repository"
+  ""
+  ""
   (repo) "/repos/:repo.owner.login/:repo.name")
 
 (defapiget-ghubp "/repos/:owner/:repo/labels"
@@ -174,17 +199,6 @@ authenticated user."
   "List all notifications for the current user, grouped by repository"
   "activity/notifications/#list-your-notifications"
   :post-process (lambda (o) (ghubp--post-process o '(subject))))
-
-(defapipost-ghubp "/repos/:owner/:repo/issues"
-  "Create an issue.
-Any user with pull access to a repository can create an issue."
-  "issues/#create-an-issue"
-  (repo) "/repos/:repo.owner.login/:repo.name/issues")
-
-(defapipatch-ghubp "/repos/:owner/:repo/issues/:number"
-  "Issue owners and users with push access can edit an issue."
-  "issues/#edit-an-issue"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
