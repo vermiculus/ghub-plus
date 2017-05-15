@@ -197,6 +197,40 @@ logins) from the issue."
   "issues/assignees/#remove-assignees-from-an-issue"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/assignees")
 
+;;; Issue Comments
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number/comments"
+  "List comments on an issue.
+Issue Comments are ordered by ascending ID."
+  "issues/comments/#list-comments-on-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/comments"
+  "List comments in a repository.
+By default, Issue Comments are ordered by ascending ID."
+  "issues/comments/#list-comments-in-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/issues/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/comments/:id"
+  "Get a single comment."
+  "issues/comments/#get-a-single-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
+
+(defapipatch-ghubp "/repos/:owner/:repo/issues/:number/comments"
+  "Create a comment."
+  "issues/comments/#create-a-comment"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
+
+(defapipatch-ghubp "/repos/:owner/:repo/issues/comments/:id"
+  "Edit a comment."
+  "issues/comments/#edit-a-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
+
+(defapidelete-ghubp "/repos/:owner/:repo/issues/comments/:id"
+  "Delete a comment."
+  "issues/comments/#delete-a-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
@@ -264,11 +298,6 @@ logins) from the issue."
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "Post a comment to an issue"
   "issues/comments/#create-a-comment"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
-
-(defapiget-ghubp "/repos/:owner/:repo/issues/:number/comments"
-  "List comments on an issue"
-  "issues/comments/#list-comments-on-an-issue"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
 
 (defun ghubp-url-parse (url)
