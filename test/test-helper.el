@@ -2,6 +2,10 @@
 (message "ghub+ loaded manually: %s"
          (if (featurep 'ghub+) "yes" "no"))
 
+(require 'subr-x)
+(require 'dash)
+(require 's)
+
 (defun lint-is-api-form-p (form)
   "Is FORM a defapi* macro call?"
   (and (s-prefix-p "defapi" (symbol-name (car form)))

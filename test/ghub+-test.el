@@ -1,7 +1,3 @@
-(require 'subr-x)
-(require 's)
-(require 'dash)
-
 (require 'ghub)
 (require 'ghub+)
 
