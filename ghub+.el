@@ -247,7 +247,7 @@ By default, Issue Comments are ordered by ascending ID."
 (defapiget-ghubp "/repos/:owner/:repo/issues/events/:id"
   "Get a single event."
   "issues/events/#get-a-single-event"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
 
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
