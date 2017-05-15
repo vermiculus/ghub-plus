@@ -166,6 +166,37 @@ Users with push access can unlock an issue's conversation."
   "issues/#unlock-an-issue"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
+;;; Issue Assignees
+(defapiget-ghubp "/repos/:owner/:repo/assignees"
+  "List assignees.
+This call lists all the available assignees to which issues may
+be assigned."
+  "issues/assignees/#list-assignees"
+  (repo) "/repos/:repo.owner.login/:repo.name/assignees")
+
+(defapiget-ghubp "/repos/:owner/:repo/assignees/:assignee"
+  ;; todo: sugar to handle valid 404 response
+  "Check assignee.
+You may also check to see if a particular user is an assignee for
+a repository."
+  "issues/assignees/#check-assignee"
+  (repo user) "/repos/:repo.owner.login/:repo.name/assignees/:user.login")
+
+(defapipost-ghubp "/repos/:owner/:repo/issues/:number/assignees"
+  ;; todo: sugar to filter users in DATA down to just the usernames
+  "Add assignees to an Issue.
+This call adds the users passed in the assignees key (as their
+logins) to the issue."
+  "issues/assignees/#add-assignees-to-an-issue")
+
+(defapidelete-ghubp "/repos/:owner/:repo/issues/:number/assignees"
+  ;; todo: sugar to filter users in DATA down to just the usernames
+  "Remove assignees from an Issue.
+This call removes the users passed in the assignees key (as their
+logins) from the issue."
+  "issues/assignees/#remove-assignees-from-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/assignees")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
