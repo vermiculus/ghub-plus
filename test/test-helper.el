@@ -54,10 +54,14 @@ return them.  Return nil if there are no offenders."
                     sym target-string)))
            (offenders (-remove filt args)))
       (dolist (arg offenders)
-        (message "Unused argument in '%s %s': %S"
-                 (lint-macro-to-method (car form))
-                 (cadr form) arg))
+        (message "Unused argument in '%s': %S"
+                 (lint-format-defapi-form form)
+                 arg))
       offenders)))
+
+(defun lint-format-defapi-form (form)
+  "=> GET /some/thing/here"
+  (concat (lint-macro-to-method (car form)) " " (cadr form)))
 
 (defun lint (form)
   "Run all linting checks on FORM."
