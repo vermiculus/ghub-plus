@@ -249,16 +249,70 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/events/#get-a-single-event"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
 
+;;; Issue Labels
+
+(defapiget-ghubp "/repos/:owner/:repo/labels"
+  "List all labels for this repository."
+  "issues/labels/#list-all-labels-for-this-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/labels")
+
+(defapiget-ghubp "/repos/:owner/:repo/labels/:name"
+  "Get a single label."
+  "issues/labels/#get-a-single-label"
+  (repo label) "/repos/:repo.owner.login/:repo.name/labels/:label.name")
+
+(defapipost-ghubp "/repos/:owner/:repo/labels"
+  "Create a label."
+  "issues/labels/#create-a-label"
+  (repo) "/repos/:repo.owner.login/:repo.name/labels")
+
+(defapipatch-ghubp "/repos/:owner/:repo/labels/:name"
+  "Update a label."
+  "issues/labels/#update-a-label"
+  (repo label) "/repos/:repo.owner.login/:repo.name/labels/:label.name")
+
+(defapidelete-ghubp "/repos/:owner/:repo/labels/:name"
+  "Delete a label."
+  "issues/labels/#deleted-a-label"
+  (repo label) "/repos/:repo.owner.login/:repo.name/labels/:label.name")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number/labels"
+  "List labels on an issue."
+  "issues/labels/#list-labels-on-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+
+(defapipost-ghubp "/repos/:owner/:repo/issues/:number/labels"
+  ;; todo: sugar to filter labels in DATA down to just the names
+  "Add labels to an issue."
+  "issues/labels/#add-labels-to-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+
+(defapidelete-ghubp "/repos/:owner/:repo/issues/:number/labels/:name"
+  "Remove a label from an issue."
+  "issues/labels/#remove-a-label-from-an-issue"
+  (repo issue label) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels/:label.name")
+
+(defapipatch-ghubp "/repos/:owner/:repo/issues/:number/labels"
+  ;; todo: sugar to filter labels in DATA down to just the names
+  "Replace all labels for an issue."
+  "issues/labels/#replace-all-labels-for-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+
+(defapidelete-ghubp "/repos/:owner/:repo/issues/:number/labels"
+  "Remove all labels from an issue."
+  "issues/labels/#remove-all-labels-from-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+
+(defapiget-ghubp "/repos/:owner/:repo/milestones/:number/labels"
+  "Get labels for every issue in a milestone."
+  "issues/labels/#get-labels-for-every-issue-in-a-milestone"
+  (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number/labels")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
   ""
   (repo) "/repos/:repo.owner.login/:repo.name")
-
-(defapiget-ghubp "/repos/:owner/:repo/labels"
-  "List labels for a repository"
-  "issues/labels/#list-all-labels-for-this-repository"
-  (repo) "/repos/:repo.owner.login/:repo.name/labels")
 
 (defapiget-ghubp "/repos/:owner/:repo/commits/:ref/statuses"
   "List statuses for a specific ref"
