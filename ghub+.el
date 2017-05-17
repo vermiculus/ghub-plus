@@ -55,6 +55,7 @@
      (thread . "THREAD is a thread object of the form returned by `ghubp-get-repos-owner-repo-comments'.")
      (issue . "ISSUE is an issue object of the form returned by `ghubp-get-issues'.")
      (pull-request . "PULL-REQUEST is a pull request object of the form returned by `ghubp-get-repos-owner-repo-pulls'.")
+     (review . "REVIEW is a review object of the form returned by `ghubp-get-repos-owner-repo-pulls-number-reviews'.")
      (label . "LABEL is a label object of the form returned by `ghubp-get-repos-owner-repo-issues-number-labels'.")
      (ref . "REF is a string and can be a SHA, a branch name, or a tag name.")
      (milestone . "MILESTONE is a milestone object.")
@@ -361,6 +362,43 @@ By default, Issue Comments are ordered by ascending ID."
   "Merge a pull request (Merge Button)"
   "pulls/#merge-a-pull-request-merge-button"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/merge")
+
+;;; Pull Request Reviews
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews"
+  "List reviews on a pull request."
+  "pulls/reviews/#list-reviews-on-a-pull-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews/:id"
+  "Get a single review."
+  "pulls/reviews/#list-reviews-on-a-pull-request"
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id")
+
+(defapidelete-ghubp "/repos/:repo.owner.login/:repo.name/pulls/:number/reviews/:id"
+  "Delete a pending review."
+  "pulls/reviews/#delete-a-pending-review"
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id")
+
+(defapiget-ghubp "/repos/:repo.owner.login/:repo.name/pulls/:number/reviews/:id/comments"
+  "Get comments for a single review."
+  "pulls/reviews/#get-comments-for-a-single-review"
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/comments")
+
+(defapipost-ghubp "/repos/:repo.owner.login/:repo.name/pulls/:number/reviews"
+  "Create a pull request review."
+  "pulls/reviews/#create-a-pull-request-review"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews")
+
+(defapipost-ghubp "/repos/:repo.owner.login/:repo.name/pulls/:number/reviews/:id/events"
+  "Submit a pull request review."
+  "pulls/reviews/#submit-a-pull-request-review"
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/events")
+
+(defapiput-ghubp "/repos/:repo.owner.login/:repo.name/pulls/:number/reviews/:id/dismissals"
+  "Dismiss a pull request review."
+  "pulls/reviews/#dismiss-a-pull-request-review"
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/dismissals")
 
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
