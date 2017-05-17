@@ -44,33 +44,9 @@
                 (cons k (alist-get v '((t . "true") (nil . "false")) v))))
             params))
 
-  (defun ghubp--remove-api-links (object &optional preserve-objects)
-    "Remove everything in OBJECT that points back to `api.github.com'.
-
-If PRESERVE-OBJECTS is non-nil, those objects will not be
-stripped of references."
-    ;; execution time overhead of 0.5%
-    (let ((recurse (lambda (o) (ghubp--remove-api-links o preserve-objects))))
-      (delq nil (if (and (consp object) (consp (car object)))
-                    (mapcar recurse object)
-                  (if (consp object)
-                      (if (memq (car object) preserve-objects)
-                          object
-                        (unless (and (stringp (cdr object))
-                                     (string-match-p (rx bos (+ alnum) "://api.github.com/")
-                                                     (cdr object)))
-                          (cons (car object)
-                                (if (consp (cdr object))
-                                    (mapcar recurse (cdr object))
-                                  (cdr object))))))))))
-
   (defun ghubp--pre-process-params (params)
     (thread-first params
       (ghubp--stringify-params)))
-
-  (defun ghubp--post-process (object &optional preserve-objects)
-    (thread-first object
-      (ghubp--remove-api-links preserve-objects)))
 
   (apiwrap-new-backend
    "GitHub" "ghubp"
@@ -86,7 +62,6 @@ stripped of references."
    :post #'ghub-post :patch #'ghub-patch :delete #'ghub-delete
 
    :link #'ghubp--make-link
-   :post-process #'ghubp--post-process
    :pre-process-params #'ghubp--pre-process-params))
 
 ;;; Utilities
@@ -339,8 +314,7 @@ By default, Issue Comments are ordered by ascending ID."
 
 (defapiget-ghubp "/notifications"
   "List all notifications for the current user, grouped by repository"
-  "activity/notifications/#list-your-notifications"
-  :post-process (lambda (o) (ghubp--post-process o '(subject))))
+  "activity/notifications/#list-your-notifications")
 
 (defapipatch-ghubp "/notifications/threads/:id"
   ""
@@ -369,8 +343,7 @@ By default, Issue Comments are ordered by ascending ID."
 (defapiget-ghubp "/notifications/threads/:id"
   "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
   "activity/notifications/#view-a-single-thread"
-  (thread) "/notifications/threads/:thread.id"
-  :post-process (lambda (o) (ghubp--post-process o '(subject))))
+  (thread) "/notifications/threads/:thread.id")
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "Post a comment to an issue"
