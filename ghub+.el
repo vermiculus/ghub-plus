@@ -330,7 +330,7 @@ By default, Issue Comments are ordered by ascending ID."
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number"
   "Get a single pull request."
   "pulls/#get-a-single-pull-request"
-  (repo) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number")
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number")
 
 (defapipost-ghubp "/repos/:owner/:repo/pulls"
   "Create a pull request."

@@ -36,6 +36,33 @@ Such that `apiwrap-resolve-api-params' would see it?"
            (s-contains-p (format ":%S/" arg) target-string)
            (s-suffix-p   (format ":%S"  arg) target-string))))
 
+(defun lint-target-to-args (target-string)
+  (let (args)
+    (with-temp-buffer
+      (save-excursion
+        (insert target-string))
+      (while (search-forward ":" nil t)
+        (let ((arg (buffer-substring-no-properties
+                    (point)
+                    (1- (search-forward-regexp (rx (or "." "/" eol)))))))
+          (unless (member arg args)
+            (push arg args)))))
+    args))
+
+(defun lint-form-used-args (form)
+  (when-let ((target (nth 5 form)))
+    (when (stringp target)
+      (lint-target-to-args target))))
+
+(defun lint-form-declared-args (form)
+  (when-let ((arg-list (nth 4 form)))
+    (when (and (listp arg-list) (-all-p #'symbolp arg-list))
+      (mapcar #'symbol-name arg-list))))
+
+(defun lint--sets-equal (l1 l2)
+  (and (--all-p (member it l1) l2)
+       (--all-p (member it l2) l1)))
+
 (defun lint-macro-to-method (msym)
   "Get the HTTP method corresponding to MSYM."
   (let ((s (symbol-name msym)))
@@ -45,19 +72,18 @@ Such that `apiwrap-resolve-api-params' would see it?"
   "Check for any unused arguments in FORM.
 If there are unused arguments, print them out with `message' and
 return them.  Return nil if there are no offenders."
-  (when (listp (nth 4 form))
-    (let* ((interesting (-slice form 4 6))
-           (args (car interesting))
-           (target-string (cadr interesting))
-           (filt (lambda (sym)
-                   (lint-arg-appears-in-target-p
-                    sym target-string)))
-           (offenders (-remove filt args)))
-      (dolist (arg offenders)
-        (message "Unused argument in '%s': %S"
-                 (lint-format-defapi-form form)
-                 arg))
-      offenders)))
+  (let ((used (lint-form-used-args form))
+        (declared (lint-form-declared-args form))
+        (defapi (lint-format-defapi-form form))
+        unused undeclared)
+    (unless (lint--sets-equal used declared)
+      (setq unused     (cl-set-difference declared used :test #'string=)
+            undeclared (cl-set-difference used declared :test #'string=))
+      (dolist (arg unused)
+        (message "Unused argument in '%s': %s" defapi arg))
+      (dolist (arg undeclared)
+        (message "Undeclared argument in '%s': %s" defapi arg))
+      t)))
 
 (defun lint-format-defapi-form (form)
   "=> GET /some/thing/here"
@@ -83,7 +109,7 @@ return them.  Return nil if there are no offenders."
       (dolist (std-arg (nth 4 form))
         (unless (memq std-arg std-args)
           (setq fail t)
-          (message "Undeclared standard argument in '%s': %S"
+          (message "Undefined standard argument in '%s': %S"
                    (lint-format-defapi-form form)
                    std-arg))))
     fail))
