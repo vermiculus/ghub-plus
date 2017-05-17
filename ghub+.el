@@ -432,6 +432,23 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
 
+;;; Pull Request Review Requests
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+  "List review requests."
+  "pulls/review_requests/#list-review-requests"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+  "Create a review request."
+  "pulls/review_requests/#create-a-review-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
+
+(defapidelete-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+  "Delete a review request."
+  "pulls/review_requests/#delete-a-review-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
