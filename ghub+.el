@@ -400,6 +400,38 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/reviews/#dismiss-a-pull-request-review"
   (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/dismissals")
 
+;;; Pull Request Review Comments
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/comments"
+  "List comments on a pull request."
+  "pulls/comments/#list-comments-on-a-pull-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/comments"
+  "List comments in a repository."
+  "pulls/comments/#list-comments-in-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls/comments")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/comments/:id"
+  "Get a single comment."
+  "pulls/comments/#get-a-single-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls/:number/comments"
+  "Create a comment."
+  "pulls/comments/#create-a-comment"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/comments")
+
+(defapipatch-ghubp "/repos/:owner/:repo/pulls/comments/:id"
+  "Edit a comment."
+  "pulls/comments/#edit-a-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
+
+(defapidelete-ghubp "/repos/:owner/:repo/pulls/comments/:id"
+  "Delete a comment."
+  "pulls/comments/#delete-a-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
