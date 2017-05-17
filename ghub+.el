@@ -292,6 +292,33 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/labels/#get-labels-for-every-issue-in-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number/labels")
 
+;;; Issue Milestones
+
+(defapiget-ghubp "/repos/:owner/:repo/milestones"
+  "List milestones for a repository."
+  "issues/milestones/#list-milestones-for-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/milestones")
+
+(defapiget-ghubp "/repos/:owner/:repo/milestones/:number"
+  "Get a single milestone."
+  "issues/milestones/#get-a-single-milestone"
+  (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
+
+(defapipost-ghubp "/repos/:owner/:repo/milestones"
+  "Create a milestone."
+  "issues/milestones/#create-a-milestone"
+  (repo) "/repos/:repo.owner.login/:repo.name/milestones")
+
+(defapipatch-ghubp "/repos/:owner/:repo/milestones/:number"
+  "Update a milestone."
+  "issues/milestones/#create-a-milestone"
+  (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
+
+(defapidelete-ghubp "/repos/:owner/:repo/milestones/:number"
+  "Delete a milestone."
+  "issues/milestones/#delete-a-milestone"
+  (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
