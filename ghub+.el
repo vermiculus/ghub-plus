@@ -65,6 +65,7 @@
    :pre-process-params #'ghubp--pre-process-params))
 
 ;;; Utilities
+
 (defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses and execute BODY.
 See `ghub-unpaginate'."
@@ -84,6 +85,7 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
             structure)))
 
 ;;; Repositories
+
 (defapiget-ghubp "/repos/:owner/:repo/collaborators"
   "List collaborators."
   "repos/collaborators/#list-collaborators"
@@ -95,6 +97,7 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
   (repo) "/repos/:repo.owner.login/:repo.name/comments")
 
 ;;; Issues
+
 (defapiget-ghubp "/issues"
   "List all issues assigned to the authenticated user across all
 visible repositories including owned repositories, member
@@ -147,6 +150,7 @@ Users with push access can unlock an issue's conversation."
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
 ;;; Issue Assignees
+
 (defapiget-ghubp "/repos/:owner/:repo/assignees"
   "List assignees.
 This call lists all the available assignees to which issues may
