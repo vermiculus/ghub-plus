@@ -124,6 +124,9 @@ return them.  Return nil if there are no offenders."
       (setq fail (or (lint-standard-args-undeclared--internal form stdargs) fail)))
     fail))
 
+(defun lint-ext-reference-in-name (form)
+  (s-contains-p "." (cadr form)))
+
 (defun lint (filename lint-function &optional per-form)
   "Run all linting checks on forms in FILENAME."
   (let (fail)

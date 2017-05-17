@@ -17,11 +17,15 @@
 (ert-deftest lint-undeclared-args ()
   (should (lint "ghub+.el" #'lint-undeclared-standard-args)))
 
+(ert-deftest lint-ext-reference-in-name ()
+  (should (lint "ghub+.el" #'lint-ext-reference-in-name 'per-form)))
+
 (ert-deftest linter-selftest ()
   (message ">>> Start linter self-tests")
 
   (should (lint-unused-args '(defapiget-ghubp "/rate_limit" "" "" (repo issue) "/:repo.thing")))
   (should (lint-unused-args '(defapiget-ghubp "/rate_limit" "" "" (repo) "/:repo.thing/:issue.thing")))
+  (should (lint-ext-reference-in-name '(defapiget-ghubp "/rate.limit" "" "" (repo) "/:repo.thing/:issue.thing")))
   (should-not (lint-unused-args '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url"
                                    :post-process (lambda (o) (ghubp--post-process o '(subject))))))
   (should-not (lint-unused-args '(defapiget-ghubp "/some_call_with_no_args" "some-desc" "some-url")))
