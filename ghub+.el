@@ -54,6 +54,7 @@
      (org  . "ORG is an organization alist of the form returned by `ghubp-get-user-orgs'.")
      (thread . "THREAD is a thread object of the form returned by `ghubp-get-repos-owner-repo-comments'.")
      (issue . "ISSUE is an issue object of the form returned by `ghubp-get-issues'.")
+     (pull-request . "PULL-REQUEST is a pull request object of the form returned by `ghubp-get-repos-owner-repo-pulls'.")
      (label . "LABEL is a label object of the form returned by `ghubp-get-repos-owner-repo-issues-number-labels'.")
      (ref . "REF is a string and can be a SHA, a branch name, or a tag name.")
      (milestone . "MILESTONE is a milestone object.")
@@ -318,6 +319,48 @@ By default, Issue Comments are ordered by ascending ID."
   "Delete a milestone."
   "issues/milestones/#delete-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
+
+;;; Pull Request
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls"
+  "List pull requests."
+  "pulls/#list-pull-requests"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number"
+  "Get a single pull request."
+  "pulls/#get-a-single-pull-request"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls"
+  "Create a pull request."
+  "pulls/#create-a-pull-request"
+  (repo) "/repos/:repo.owner.login/:repo.name/pulls")
+
+(defapipatch-ghubp "/repos/:owner/:repo/pulls/:number"
+  "Update a pull request."
+  "pulls/#update-a-pull-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/commits"
+  "List commits on a pull request."
+  "pulls/#list-commits-on-a-pull-request"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/commits")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/files"
+  "List pull request files."
+  "pulls/#list-pull-requests-files"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/files")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/:number/merge"
+  "Get if a pull request has been merged."
+  "pulls/#get-if-a-pull-request-has-been-merged"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/merge")
+
+(defapiput-ghubp "/repos/:owner/:repo/pulls/:number/merge"
+  "Merge a pull request (Merge Button)"
+  "pulls/#merge-a-pull-request-merge-button"
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/merge")
 
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
