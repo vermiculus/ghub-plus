@@ -449,6 +449,53 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/review_requests/#delete-a-review-request"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
 
+;;; Reactions
+
+(defapiget-ghubp "/repos/:owner/:repo/comments/:id/reactions"
+  "List reactions for a commit comment."
+  "reactions/#list-reactions-for-a-commit-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/comments/:thread.id/reactions")
+
+(defapipost-ghubp "/repos/:owner/:repo/comments/:id/reactions"
+  "Create reaction for a commit comment."
+  "reactions/#create-reaction-for-a-commit-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/comments/:thread.id/reactions")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/:number/reactions"
+  "List reactions for an issue."
+  "reactions/#list-reactions-for-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/reactions")
+
+(defapipost-ghubp "/repos/:owner/:repo/issues/:number/reactions"
+  "Create reaction for an issue."
+  "reactions/#create-reaction-for-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/reactions")
+
+(defapiget-ghubp "/repos/:owner/:repo/issues/comments/:id/reactions"
+  "List reactions for an issue comment."
+  "reactions/#list-reactions-for-an-issue-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id/reactions")
+
+(defapipost-ghubp "/repos/:owner/:repo/issues/comments/:id/reactions"
+  "Create reaction for an issue comment."
+  "reactions/#create-reaction-for-an-issue-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id/reactions")
+
+(defapiget-ghubp "/repos/:owner/:repo/pulls/comments/:id/reactions"
+  "List reactions for a pull request review comment."
+  "reactions/#list-reactions-for-a-pull-request-review-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id/reactions")
+
+(defapipost-ghubp "/repos/:owner/:repo/pulls/comments/:id/reactions"
+  "Create reaction for a pull request review comment."
+  "reactions/#create-reaction-for-a-pull-request-review-comment"
+  (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id/reactions")
+
+(defapidelete-ghubp "/reactions/:id"
+  "Delete a reaction."
+  "reactions/#delete-a-reaction"
+  (thread) "/reactions/:thread.id")
+
 ;;; Unfiled
 (defapiget-ghubp "/repos/:owner/:repo"
   ""
