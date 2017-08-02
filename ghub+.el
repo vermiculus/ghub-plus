@@ -321,6 +321,31 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/milestones/#delete-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
 
+;;; Organizations
+
+(defapiget-ghubp "/user/orgs"
+  "List organizations for the authenticated user."
+  "orgs/#list-your-organizations")
+
+(defapiget-ghubp "/organizations"
+  "Lists all organizations in the order that they were created on GitHub."
+  "orgs/#list-all-organizations")
+
+(defapiget-ghubp "/users/:username/orgs"
+  "List public organization memberships for the specified user."
+  "orgs/#list-user-organizations"
+  (user) "/users/:user.login/orgs")
+
+(defapiget-ghubp "/orgs/:org"
+  "Get an organization."
+  "orgs/#get-an-organization"
+  (org) "/orgs/:org.login")
+
+(defapipatch-ghubp "/orgs/:org"
+  "Edit an organization."
+  "orgs/#edit-an-organization"
+  (org) "/orgs/:org.login")
+
 ;;; Pull Request
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls"
