@@ -11,6 +11,13 @@
           (repo  (ghubp-get-repos-owner-repo repo)))
      (= 82884749 (alist-get 'id repo)))))
 
+(ert-deftest ghubp-test-ratelimit-utils ()
+  (let ((ghub-response-headers
+         '(("X-RateLimit-Remaining" . "4774")
+           ("X-RateLimit-Reset" . "1501809984"))))
+    (should (equal (ghubp-ratelimit-remaining) 4774))
+    (should (equal (ghubp-ratelimit-reset-time) '(22915 52544)))))
+
 (ert-deftest lint-unused-args ()
   (should (lint "ghub+.el" #'lint-unused-args 'per-form)))
 
