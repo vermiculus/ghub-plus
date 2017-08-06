@@ -1,7 +1,7 @@
 (require 'ghub)
 (require 'ghub+)
 
-;;; No apparent way to provide testing for authenticated requests
+;;; If we ever need to authenticate, https://docs.travis-ci.com/user/encryption-keys/
 (setq ghub-authenticate nil)
 
 (ert-deftest basic ()
