@@ -45,8 +45,7 @@
             params))
 
   (defun ghubp--pre-process-params (params)
-    (thread-first params
-      (ghubp--stringify-params)))
+    (ghubp--stringify-params params))
 
   (apiwrap-new-backend
    "GitHub" "ghubp"
