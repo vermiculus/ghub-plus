@@ -47,9 +47,31 @@
   (defun ghubp--pre-process-params (params)
     (ghubp--stringify-params params))
 
+  (defvar ghubp-contextualize-function nil
+    "Function to contextualize `ghub' requests.
+Can return an alist with any of the following properties:
+
+* `ghub-base-url'
+* `ghub-authenticate'
+* `ghub-token'
+* `ghub-username'
+* `ghub-unpaginate'
+
+If (and only if) these properties are non-nil, they will override
+the eponymous `ghub' variables.
+
+The function should be callable with no arguments.")
+
   (defun ghubp--request (method resource params data)
-    (ghub-request (upcase (symbol-name method))
-                  resource (apiwrap-plist->alist params) data))
+    (let ((context (when (functionp ghubp-contextualize-function)
+                     (funcall ghubp-contextualize-function))))
+      (let ((ghub-base-url     (alist-get 'ghub-base-url     context ghub-base-url))
+            (ghub-authenticate (alist-get 'ghub-authenticate context ghub-authenticate))
+            (ghub-token        (alist-get 'ghub-token        context ghub-token))
+            (ghub-username     (alist-get 'ghub-username     context ghub-username))
+            (ghub-unpaginate   (alist-get 'ghub-unpaginate   context ghub-unpaginate)))
+        (ghub-request (upcase (symbol-name method))
+                      resource (apiwrap-plist->alist params) data))))
 
   (apiwrap-new-backend
       "GitHub" "ghubp"
