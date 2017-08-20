@@ -73,8 +73,7 @@ The function should be callable with no arguments.")
         (ghub-request (upcase (symbol-name method))
                       resource (apiwrap-plist->alist params) data))))
 
-  (apiwrap-new-backend
-      "GitHub" "ghubp"
+  (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
       (org  . "ORG is an organization alist of the form returned by `ghubp-get-user-orgs'.")
       (thread . "THREAD is a thread object of the form returned by `ghubp-get-repos-owner-repo-comments'.")
