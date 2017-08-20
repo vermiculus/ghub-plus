@@ -726,6 +726,70 @@ This is accessible by anyone."
 
 ;; https://developer.github.com/v3/users/blocking/
 
+;; Activity - Notifications
+
+;; TODO: It would be nice if ghub+ could offer 'smart' polling for
+;; notifications to trim down on API requests.  This smart polling is
+;; supported by GitHub for notifications in particular.  If done
+;; right, we could offer a 'push'-type interface to handle when new
+;; notifications are received.
+
+;; (ghubp-notifications-{start,stop}-polling)
+;; ghubp-notifications-received-hook
+
+(defapiget-ghubp "/notifications"
+  "Get the user's notifications."
+  "activity/notifications/#list-your-notifications")
+
+(defapiget-ghubp
+  "/repos/:owner/:repo/notifications"
+  "List your notifications in a repository."
+  "activity/notifications/#list-your-notifications-in-a-repository"
+  (user repo) "/repos/:user.login/:repo.name/notifications")
+
+(defapiput-ghubp "/notifications"
+  "Mark as read.
+Marking a notification as \"read\" removes it from the default
+view on GitHub."
+  "activity/notifications/#mark-as-read")
+
+(defapiput-ghubp "/repos/:owner/:repo/notifications"
+  "Mark notifications as read in a repository.
+Marking all notifications in a repository as \"read\" removes
+them from the default view on GitHub."
+  "activity/notifications/#mark-notifications-as-read-in-a-repository"
+  (user repo) "/repos/:user.login/:repo.name/notifications")
+
+(defapiget-ghubp "/notifications/threads/:id"
+  "View a single thread."
+  "activity/notifications/#view-a-single-thread"
+  (thread) "/notifications/threads/:thread.id")
+
+(defapipatch-ghubp "/notifications/threads/:id"
+  "Mark a thread as read."
+  "activity/notifications/#mark-a-thread-as-read"
+  (thread) "/notifications/threads/:thread.id")
+
+(defapiget-ghubp "/notifications/threads/:id/subscription"
+  "Get a thread subscription.
+This checks to see if the current user is subscribed to a
+thread."
+  "activity/notifications/#get-a-thread-subscription"
+  (thread) "/notifications/threads/:thread.id/subscription")
+
+(defapiput-ghubp "/notifications/threads/:id/subscription"
+  "Set a thread subscription.
+This lets you subscribe or unsubscribe from a conversation.
+Unsubscribing from a conversation mutes all future
+notifications (until you comment or get @mentioned once more)."
+  "activity/notifications/#set-a-thread-subscription"
+  (thread) "/notifications/threads/:thread.id/subscription")
+
+(defapidelete-ghubp "/notifications/threads/:id/subscription"
+  "Delete a thread subscription."
+  "activity/notifications/#delete-a-thread-subscription"
+  (thread) "/notifications/threads/:thread.id/subscription")
+
 ;;; Unfiled
 
 (defapiget-ghubp "/repos/:owner/:repo/commits/:ref/statuses"
@@ -738,24 +802,10 @@ This is accessible by anyone."
   "repos/statuses/#get-the-combined-status-for-a-specific-ref"
   (repo ref) "/repos/:repo.owner.login/:repo.name/commits/:ref/status")
 
-(defapiget-ghubp "/notifications"
-  "List all notifications for the current user, grouped by repository"
-  "activity/notifications/#list-your-notifications")
-
-(defapipatch-ghubp "/notifications/threads/:id"
-  ""
-  "activity/notifications/#mark-a-thread-as-read"
-  (thread) "/notifications/threads/:thread.id")
-
 (defapipost-ghubp "/repos/:owner/:repo/forks"
   "Create a fork for the authenticated user."
   "repos/forks/#create-a-fork"
   (repo) "/repos/:repo.owner.login/:repo.name/forks")
-
-(defapiget-ghubp "/notifications/threads/:id"
-  "Adds Mlatest_comment_url-callback and Murl-callback to .subject"
-  "activity/notifications/#view-a-single-thread"
-  (thread) "/notifications/threads/:thread.id")
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "Post a comment to an issue"
