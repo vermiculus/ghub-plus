@@ -51,27 +51,42 @@
     "Function to contextualize `ghub' requests.
 Can return an alist with any of the following properties:
 
-* `ghub-base-url'
-* `ghub-authenticate'
-* `ghub-token'
-* `ghub-username'
-* `ghub-unpaginate'
+* `root'
+* `auth'
+* `user'
+* `unpaginate'
+* `extra-headers'
 
 If (and only if) these properties are non-nil, they will override
 the eponymous `ghub' variables.
 
 The function should be callable with no arguments.")
 
+  (defun ghubp-get-context ()
+    "Get the current context with `ghubp-contextualize-function'."
+    (when (functionp ghubp-contextualize-function)
+      (funcall ghubp-contextualize-function)))
+
   (defun ghubp--request (method resource params data)
-    (let ((context (when (functionp ghubp-contextualize-function)
-                     (funcall ghubp-contextualize-function))))
-      (let ((ghub-base-url     (alist-get 'ghub-base-url     context ghub-base-url))
-            (ghub-authenticate (alist-get 'ghub-authenticate context ghub-authenticate))
-            (ghub-token        (alist-get 'ghub-token        context ghub-token))
-            (ghub-username     (alist-get 'ghub-username     context ghub-username))
-            (ghub-unpaginate   (alist-get 'ghub-unpaginate   context ghub-unpaginate)))
-        (ghub-request (upcase (symbol-name method))
-                      resource (apiwrap-plist->alist params) data))))
+    "Using METHOD, get RESOURCE with PARAMS and DATA.
+`ghubp-contextualize-function' is used to contextualize this
+request.
+
+METHOD is one of `get', `put', `post', `head', `patch', and
+`delete'.
+
+RESOURCE is a string.
+
+PARAMS is a plist.
+
+DATA is an alist."
+    (let-alist (ghubp-get-context)
+      (let ((method (upcase (symbol-name method)))
+            (params (apiwrap-plist->alist params)))
+        (ghub-request method resource params data
+                      .extra-headers .unpaginate
+                      nil nil   ; pass errors up ; use default json-read
+                      .user .auth .root))))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
@@ -88,7 +103,6 @@ The function should be callable with no arguments.")
       (user-2 . "USER-2 is a user object.")
       (key . "KEY is a key object."))
     :request #'ghubp--request
-
     :link #'ghubp--make-link
     :pre-process-params #'ghubp--pre-process-params))
 
