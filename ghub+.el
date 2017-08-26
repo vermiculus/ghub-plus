@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'url)
+(require 'cl-lib)
 (require 'ghub)
 (require 'apiwrap)
 
@@ -109,9 +110,26 @@ DATA is an alist."
 ;;; Utilities
 
 (defmacro ghubp-unpaginate (&rest body)
-  "Unpaginate API responses and execute BODY.
-See `ghub-unpaginate'."
-  `(let ((ghub-unpaginate t)) ,@body))
+  "Unpaginate API responses while executing BODY."
+  `(ghubp-override-context unpaginate t ,@body))
+
+(defmacro ghubp-override-context (context new-value &rest body)
+  "Execute body while manually overriding CONTEXT with NEW-VALUE.
+NEW-VALUE takes precedence over anything that
+`ghubp-contextualize-function' provides for CONTEXT, but
+`ghubp-contextualize-function' is otherwise respected."
+  (declare (indent 2))
+  (unless (memq context '(root auth user unpaginate extra-headers))
+    (error (concat "`ghubp-override-context' should only override one "
+                   "of the symbols from `ghubp-contextualize-function'.")))
+  (let ((sym-other-context (cl-gensym)))
+    `(let ((,sym-other-context (ghubp-get-context))
+           ghubp-contextualize-function)
+       ;; override any existing value for CONTEXT
+       (push (cons ',context ,new-value) ,sym-other-context)
+       ;; and box the whole thing back into the var
+       (setq ghubp-contextualize-function (lambda () ,sym-other-context))
+       ,@body)))
 
 (defun ghubp-keep-only (structure object)
   "Keep a specific STRUCTURE in OBJECT.
