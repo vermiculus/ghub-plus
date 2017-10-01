@@ -63,6 +63,11 @@ the eponymous `ghub' variables.
 
 The function should be callable with no arguments.")
 
+  (defvar ghubp-request-override-function nil
+    "Function to use instead of `ghub-request' for base calls.
+
+It is expected to have the same signature as `ghub-request'.")
+
   (defun ghubp-get-context ()
     "Get the current context with `ghubp-contextualize-function'."
     (when (functionp ghubp-contextualize-function)
@@ -70,8 +75,12 @@ The function should be callable with no arguments.")
 
   (defun ghubp--request (method resource params data)
     "Using METHOD, get RESOURCE with PARAMS and DATA.
+
 `ghubp-contextualize-function' is used to contextualize this
 request.
+
+If non-nil, `ghubp-request-override-function' is used instead of
+`ghub-request'.
 
 METHOD is one of `get', `put', `post', `head', `patch', and
 `delete'.
@@ -84,10 +93,12 @@ DATA is an alist."
     (let-alist (ghubp-get-context)
       (let ((method (upcase (symbol-name method)))
             (params (apiwrap-plist->alist params)))
-        (ghub-request method resource params data
-                      .extra-headers .unpaginate
-                      nil nil   ; pass errors up ; use default json-read
-                      .user .auth .root))))
+        (funcall (or ghubp-request-override-function
+                     #'ghub-request)
+                 method resource params data
+                 .extra-headers .unpaginate
+                 nil nil   ; pass errors up ; use default json-read
+                 .user .auth .root))))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
