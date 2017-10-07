@@ -93,12 +93,24 @@ DATA is an alist."
     (let-alist (ghubp-get-context)
       (let ((method (upcase (symbol-name method)))
             (params (apiwrap-plist->alist params)))
-        (funcall (or ghubp-request-override-function
-                     #'ghub-request)
-                 method resource params data
-                 .extra-headers .unpaginate
-                 nil nil   ; pass errors up ; use default json-read
-                 .user .auth .root))))
+        (if (fboundp 'ghub-create-token)
+            ;; working with the new version of ghub, still in dev
+            ;; https://github.com/magit/ghub/blob/pu
+            (funcall (or ghubp-request-override-function
+                         #'ghub-request)
+                     method resource params data
+                     .extra-headers .unpaginate
+                     nil nil   ; pass errors up ; use default `json-read'
+                     .user .auth .root)
+          ;; working with the old version
+          (let ((ghub-extra-headers (or .extra-headers ghub-extra-headers))
+                (ghub-unpaginate    (or .unpaginate    ghub-unpaginate))
+                (ghub-username      (or .user          ghub-username))
+                (ghub-authenticate  (or .auth          ghub-authenticate))
+                (ghub-base-url      (or .root          ghub-base-url)))
+            (funcall (or ghubp-request-override-function
+                         #'ghub-request)
+                     method resource params data))))))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
