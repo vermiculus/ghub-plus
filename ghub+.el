@@ -5,7 +5,7 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.2"))
+;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.3"))
 ;; Package-Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -72,6 +72,16 @@ It is expected to have the same signature as `ghub-request'.")
     "Get the current context with `ghubp-contextualize-function'."
     (when (functionp ghubp-contextualize-function)
       (funcall ghubp-contextualize-function)))
+
+  (defun ghubp-get-in-all (props object-list)
+    "Follow property-path PROPS in OBJECT-LIST.
+Returns a list of the property-values."
+    (declare (indent 1))
+    (if (or (null props) (not (consp props)))
+        object-list
+      (ghubp-get-in-all (cdr props)
+        (mapcar (lambda (o) (alist-get (car props) o))
+                object-list))))
 
   (defun ghubp-request (method resource params data)
     "Using METHOD, get RESOURCE with PARAMS and DATA.
@@ -258,19 +268,24 @@ a repository."
   (repo user) "/repos/:repo.owner.login/:repo.name/assignees/:user.login")
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/assignees"
-  ;; todo: sugar to filter users in DATA down to just the usernames
   "Add assignees to an Issue.
 This call adds the users passed in the assignees key (as their
 logins) to the issue."
-  "issues/assignees/#add-assignees-to-an-issue")
+  "issues/assignees/#add-assignees-to-an-issue"
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/assignees"
+  :pre-process-data
+  (lambda (users)
+    `((assignees . ,(ghubp-get-in-all '(login) users)))))
 
 (defapidelete-ghubp "/repos/:owner/:repo/issues/:number/assignees"
-  ;; todo: sugar to filter users in DATA down to just the usernames
   "Remove assignees from an Issue.
 This call removes the users passed in the assignees key (as their
 logins) from the issue."
   "issues/assignees/#remove-assignees-from-an-issue"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/assignees")
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/assignees"
+  :pre-process-data
+  (lambda (users)
+    `((assignees . ,(ghubp-get-in-all '(login) users)))))
 
 ;;; Issue Comments
 
@@ -357,10 +372,10 @@ By default, Issue Comments are ordered by ascending ID."
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
 
 (defapipost-ghubp "/repos/:owner/:repo/issues/:number/labels"
-  ;; todo: sugar to filter labels in DATA down to just the names
   "Add labels to an issue."
   "issues/labels/#add-labels-to-an-issue"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels"
+  :pre-process-data (apply-partially #'ghubp-get-in-all '(name)))
 
 (defapidelete-ghubp "/repos/:owner/:repo/issues/:number/labels/:name"
   "Remove a label from an issue."
@@ -368,10 +383,10 @@ By default, Issue Comments are ordered by ascending ID."
   (repo issue label) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels/:label.name")
 
 (defapipatch-ghubp "/repos/:owner/:repo/issues/:number/labels"
-  ;; todo: sugar to filter labels in DATA down to just the names
   "Replace all labels for an issue."
   "issues/labels/#replace-all-labels-for-an-issue"
-  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels")
+  (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/labels"
+  :pre-process-data (apply-partially #'ghubp-get-in-all '(name)))
 
 (defapidelete-ghubp "/repos/:owner/:repo/issues/:number/labels"
   "Remove all labels from an issue."
