@@ -73,7 +73,7 @@ It is expected to have the same signature as `ghub-request'.")
     (when (functionp ghubp-contextualize-function)
       (funcall ghubp-contextualize-function)))
 
-  (defun ghubp--request (method resource params data)
+  (defun ghubp-request (method resource params data)
     "Using METHOD, get RESOURCE with PARAMS and DATA.
 
 `ghubp-contextualize-function' is used to contextualize this
@@ -126,7 +126,7 @@ DATA is an alist."
       (user-1 . "USER-1 is a user object.")
       (user-2 . "USER-2 is a user object.")
       (key . "KEY is a key object."))
-    :request #'ghubp--request
+    :request #'ghubp-request
     :link #'ghubp--make-link
     :pre-process-params #'ghubp--pre-process-params))
 
