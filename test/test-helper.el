@@ -6,6 +6,15 @@
 (require 'dash)
 (require 's)
 
+(setq ghubp-request-override-function
+      (lambda (method resource params data)
+        (cond
+         ((and (string= method "GET")
+               (string= resource "/repos/vermiculus/ghub-plus")
+               (null params)
+               (null data))
+          '((id . 82884749))))))
+
 (defun lint-is-api-form-p (form)
   "Is FORM a defapi* macro call?"
   (and (s-prefix-p "defapi" (symbol-name (car form)))

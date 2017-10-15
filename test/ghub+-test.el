@@ -1,8 +1,4 @@
-(require 'ghub)
 (require 'ghub+)
-
-;;; If we ever need to authenticate, https://docs.travis-ci.com/user/encryption-keys/
-(setq ghub-authenticate nil)
 
 (ert-deftest basic ()
   (should
