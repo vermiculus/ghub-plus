@@ -9,10 +9,12 @@
 
 (ert-deftest ghubp-test-ratelimit-utils ()
   (let ((ghub-response-headers
-         '(("X-RateLimit-Remaining" . "4774")
+         '(("X-RateLimit-Limit" . "5000")
+           ("X-RateLimit-Remaining" . "4774")
            ("X-RateLimit-Reset" . "1501809984"))))
-    (should (equal (ghubp-ratelimit-remaining) 4774))
-    (should (equal (ghubp-ratelimit-reset-time) '(22915 52544)))))
+    (let-alist (ghubp-ratelimit)
+      (should (equal .remaining 4774))
+      (should (equal .reset '(22915 52544))))))
 
 (ert-deftest lint-unused-args ()
   (should (lint "ghub+.el" #'lint-unused-args 'per-form)))

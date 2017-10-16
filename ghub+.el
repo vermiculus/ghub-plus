@@ -183,19 +183,35 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
 
 (defun ghubp-ratelimit-reset-time ()
   "Get the reset time for the rate-limit as a time object."
-  (ignore-errors
-    (seconds-to-time
-     (string-to-number
-      (ghubp-header "X-RateLimit-Reset")))))
+  (declare (obsolete 'ghubp-ratelimit "2017-10-17"))
+  (alist-get 'reset (ghubp-ratelimit)))
 
 (defun ghubp-ratelimit-remaining ()
-  "Get the remaining number of requests available.
-Note that a return value of 'nil' does not mean the same thing as
-a return value of 0.  The latter implies that we do know how many
-requests remain while the former makes no such assertion."
-  (ignore-errors
-    (string-to-number
-     (ghubp-header "X-RateLimit-Remaining"))))
+  "Get the remaining number of requests available."
+  (declare (obsolete 'ghubp-ratelimit "2017-10-17"))
+  (alist-get 'remaining (ghubp-ratelimit)))
+
+(defun ghubp-ratelimit ()
+  "Get `/rate_limit.rate' using `ghub-response-headers'.
+Returns nil if the service is not rate-limited.  Otherwise,
+returns an alist with the following properties:
+
+  `.limit'
+     number of requests we're allowed to make per hour.
+
+  `.remaining'
+     number of requests remaining for this hour.
+
+  `.reset'
+     time value of instant `.remaining' resets to `.limit'."
+  (when (and ghub-response-headers
+             (assoc-string "X-RateLimit-Limit" ghub-response-headers))
+    (let* ((headers (list "X-RateLimit-Limit" "X-RateLimit-Remaining" "X-RateLimit-Reset"))
+           (headers (mapcar (lambda (x) (string-to-number (ghubp-header x))) headers)))
+      `((limit     . ,(nth 0 headers))
+        (remaining . ,(nth 1 headers))
+        (reset     . ,(seconds-to-time
+                       (nth 2 headers)))))))
 
 ;;; Issues
 
