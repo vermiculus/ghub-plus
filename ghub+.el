@@ -213,6 +213,32 @@ returns an alist with the following properties:
         (reset     . ,(seconds-to-time
                        (nth 2 headers)))))))
 
+(defun ghubp--follow (method resource &optional params data)
+  "Using METHOD, follow the RESOURCE link with PARAMS and DATA.
+This method is intended for use with callbacks."
+  (when (string-prefix-p ghub-base-url resource)
+    (setq resource (url-filename (url-generic-parse-url resource))))
+  (ghubp-request method resource params data))
+
+(defun ghubp-follow-get    (resource &optional params data)
+  "GET wrapper for `ghubp-follow'."
+  (ghubp--follow 'get    resource params data))
+(defun ghubp-follow-put    (resource &optional params data)
+  "PUT wrapper for `ghubp-follow'."
+  (ghubp--follow 'put    resource params data))
+(defun ghubp-follow-head   (resource &optional params data)
+  "HEAD wrapper for `ghubp-follow'."
+  (ghubp--follow 'head   resource params data))
+(defun ghubp-follow-post   (resource &optional params data)
+  "POST wrapper for `ghubp-follow'."
+  (ghubp--follow 'post   resource params data))
+(defun ghubp-follow-patch  (resource &optional params data)
+  "PATCH wrapper for `ghubp-follow'."
+  (ghubp--follow 'patch  resource params data))
+(defun ghubp-follow-delete (resource &optional params data)
+  "DELETE wrapper for `ghubp-follow'."
+  (ghubp--follow 'delete resource params data))
+
 (defun ghubp-base-html-url ()
   "Get the base HTML URL from `ghub-base-url'"
   (cond
