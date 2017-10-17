@@ -41,8 +41,10 @@
   (defun ghubp--stringify-params (params)
     "Process PARAMS from textual data to Lisp structures."
     (mapcar (lambda (p)
-              (let ((k (car p)) (v (cdr p)))
-                (cons k (alist-get v '((t . "true") (nil . "false")) v))))
+              (if (listp p)
+		  (let ((k (car p)) (v (cdr p)))
+		    (cons k (alist-get v '((t . "true") (nil . "false")) v)))
+		p))
             params))
 
   (defun ghubp--pre-process-params (params)
