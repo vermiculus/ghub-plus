@@ -213,6 +213,15 @@ returns an alist with the following properties:
         (reset     . ,(seconds-to-time
                        (nth 2 headers)))))))
 
+(defun ghubp-base-html-url ()
+  "Get the base HTML URL from `ghub-base-url'"
+  (cond
+   ((string= ghub-base-url "https://api.github.com")
+    "https://github.com")
+   ((string-match (rx bos (group (* any)) "/api/v3" eos)
+                  ghub-base-url)
+    (match-string 1 ghub-base-url))))
+
 ;;; Issues
 
 (defapiget-ghubp "/issues"
