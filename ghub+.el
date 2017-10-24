@@ -54,20 +54,21 @@
     "Function to contextualize `ghub' requests.
 Can return an alist with any of the following properties:
 
-* `root'
 * `auth'
-* `user'
+* `headers'
+* `host'
 * `unpaginate'
-* `extra-headers'
+* `username'
 
-If (and only if) these properties are non-nil, they will override
-the eponymous `ghub' variables.
+If (and only if) these properties are non-nil, they will provide
+values for the eponymous `ghub-request' keyword arguments.
 
-The function should be callable with no arguments.")
+The function should be callable with no arguments.
+
+See also `ghubp-get-context'.")
 
   (defvar ghubp-request-override-function nil
     "Function to use instead of `ghub-request' for base calls.
-
 It is expected to have the same signature as `ghub-request'.")
 
   (defun ghubp-get-context ()
@@ -105,24 +106,16 @@ DATA is an alist."
     (let-alist (ghubp-get-context)
       (let ((method (upcase (symbol-name method)))
             (params (apiwrap-plist->alist params)))
-        (if (fboundp 'ghub-create-token)
-            ;; working with the new version of ghub, still in dev
-            ;; https://github.com/magit/ghub/blob/pu
-            (funcall (or ghubp-request-override-function
-                         #'ghub-request)
-                     method resource params data
-                     .extra-headers .unpaginate
-                     nil nil   ; pass errors up ; use default `json-read'
-                     .user .auth .root)
-          ;; working with the old version
-          (let ((ghub-extra-headers (or .extra-headers ghub-extra-headers))
-                (ghub-unpaginate    (or .unpaginate    ghub-unpaginate))
-                (ghub-username      (or .user          ghub-username))
-                (ghub-authenticate  (or .auth          ghub-authenticate))
-                (ghub-base-url      (or .root          ghub-base-url)))
-            (funcall (or ghubp-request-override-function
-                         #'ghub-request)
-                     method resource params data))))))
+        (funcall (or ghubp-request-override-function
+                     #'ghub-request)
+                 method resource nil
+                 :query params
+                 :payload data
+                 :unpaginate .unpaginate
+                 :headers .headers
+                 :username .username
+                 :auth .auth
+                 :host .host))))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
@@ -154,7 +147,7 @@ NEW-VALUE takes precedence over anything that
 `ghubp-contextualize-function' provides for CONTEXT, but
 `ghubp-contextualize-function' is otherwise respected."
   (declare (indent 2))
-  (unless (memq context '(root auth user unpaginate extra-headers))
+  (unless (memq context '(host auth username unpaginate headers))
     (error (concat "`ghubp-override-context' should only override one "
                    "of the symbols from `ghubp-contextualize-function'.")))
   (let ((sym-other-context (cl-gensym)))
@@ -218,9 +211,11 @@ returns an alist with the following properties:
 (defun ghubp--follow (method resource &optional params data)
   "Using METHOD, follow the RESOURCE link with PARAMS and DATA.
 This method is intended for use with callbacks."
-  (when (string-prefix-p ghub-base-url resource)
-    (setq resource (url-filename (url-generic-parse-url resource))))
-  (ghubp-request method resource params data))
+  (let ((url (url-generic-parse-url resource)))
+    (when (fboundp 'ghub--host)
+      (unless (string-equal (url-host url) (ghub--host))
+        (error "Bad link")))
+    (ghubp-request method (url-filename url) params data)))
 
 (defun ghubp-follow-get    (resource &optional params data)
   "GET wrapper for `ghubp-follow'."
@@ -242,13 +237,11 @@ This method is intended for use with callbacks."
   (ghubp--follow 'delete resource params data))
 
 (defun ghubp-base-html-url ()
-  "Get the base HTML URL from `ghub-base-url'"
-  (cond
-   ((string= ghub-base-url "https://api.github.com")
-    "https://github.com")
-   ((string-match (rx bos (group (* any)) "/api/v3" eos)
-                  ghub-base-url)
-    (match-string 1 ghub-base-url))))
+  "Get the base HTML URL from `ghub-default-host'"
+  (if-let ((host (magit-get "github" "host")))
+      (and (string-match (rx bos (group (* any)) "/api/v3" eos) host)
+           (match-string 1 host))
+    "https://github.com"))
 
 ;;; Issues
 
