@@ -243,6 +243,20 @@ This method is intended for use with callbacks."
            (match-string 1 host))
     "https://github.com"))
 
+(defun ghubp-host ()
+  "Exposes `ghub--host'."
+  (ghub--host))
+
+(defun ghubp-username ()
+  "Exposes `ghub--username'."
+  (ghub--username (ghub--host)))
+
+(defun ghubp-token (package)
+  "Exposes `ghub--token' in a friendly way."
+  (let* ((host (ghub--host))
+         (user (ghub--username host)))
+    (ghub--token host user package t)))
+
 ;;; Issues
 
 (defapiget-ghubp "/issues"
