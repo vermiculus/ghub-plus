@@ -135,7 +135,8 @@ DATA is an alist."
     :link #'ghubp--make-link
     :pre-process-params #'ghubp--pre-process-params))
 
-;;; Utilities
+
+;;; Utilities:
 
 (defmacro ghubp-unpaginate (&rest body)
   "Unpaginate API responses while executing BODY."
@@ -257,7 +258,8 @@ This method is intended for use with callbacks."
          (user (ghub--username host)))
     (ghub--token host user package t)))
 
-;;; Issues
+
+;;; Issues:
 
 (defapiget-ghubp "/issues"
   "List all issues assigned to the authenticated user across all
@@ -310,7 +312,8 @@ Users with push access can unlock an issue's conversation."
   "issues/#unlock-an-issue"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number")
 
-;;; Issue Assignees
+
+;;; Issue Assignees:
 
 (defapiget-ghubp "/repos/:owner/:repo/assignees"
   "List assignees.
@@ -347,7 +350,8 @@ logins) from the issue."
   (lambda (users)
     `((assignees . ,(ghubp-get-in-all '(login) users)))))
 
-;;; Issue Comments
+
+;;; Issue Comments:
 
 (defapiget-ghubp "/repos/:owner/:repo/issues/:number/comments"
   "List comments on an issue.
@@ -381,7 +385,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/comments/:thread.id")
 
-;;; Issue Events
+
+;;; Issue Events:
 
 (defapiget-ghubp "/repos/:owner/:repo/issues/:number/events"
   ;; note: :number changed from :issue_number for consistency
@@ -399,7 +404,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/events/#get-a-single-event"
   (repo thread) "/repos/:repo.owner.login/:repo.name/issues/events/:thread.id")
 
-;;; Issue Labels
+
+;;; Issue Labels:
 
 (defapiget-ghubp "/repos/:owner/:repo/labels"
   "List all labels for this repository."
@@ -458,7 +464,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/labels/#get-labels-for-every-issue-in-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number/labels")
 
-;;; Issue Milestones
+
+;;; Issue Milestones:
 
 (defapiget-ghubp "/repos/:owner/:repo/milestones"
   "List milestones for a repository."
@@ -485,7 +492,8 @@ By default, Issue Comments are ordered by ascending ID."
   "issues/milestones/#delete-a-milestone"
   (repo milestone) "/repos/:repo.owner.login/:repo.name/milestones/:milestone.number")
 
-;;; Organizations
+
+;;; Organizations:
 
 (defapiget-ghubp "/user/orgs"
   "List organizations for the authenticated user."
@@ -510,7 +518,8 @@ By default, Issue Comments are ordered by ascending ID."
   "orgs/#edit-an-organization"
   (org) "/orgs/:org.login")
 
-;;; Pull Request
+
+;;; Pull Request:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls"
   "List pull requests."
@@ -552,7 +561,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/#merge-a-pull-request-merge-button"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/merge")
 
-;;; Pull Request Reviews
+
+;;; Pull Request Reviews:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews"
   "List reviews on a pull request."
@@ -589,7 +599,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/reviews/#dismiss-a-pull-request-review"
   (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id/dismissals")
 
-;;; Pull Request Review Comments
+
+;;; Pull Request Review Comments:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/comments"
   "List comments on a pull request."
@@ -621,7 +632,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/comments/#delete-a-comment"
   (repo thread) "/repos/:repo.owner.login/:repo.name/pulls/comments/:thread.id")
 
-;;; Pull Request Review Requests
+
+;;; Pull Request Review Requests:
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
   "List review requests."
@@ -638,7 +650,8 @@ By default, Issue Comments are ordered by ascending ID."
   "pulls/review_requests/#delete-a-review-request"
   (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
 
-;;; Reactions
+
+;;; Reactions:
 
 (defapiget-ghubp "/repos/:owner/:repo/comments/:id/reactions"
   "List reactions for a commit comment."
@@ -685,7 +698,8 @@ By default, Issue Comments are ordered by ascending ID."
   "reactions/#delete-a-reaction"
   (thread) "/reactions/:thread.id")
 
-;;; Repositories
+
+;;; Repositories:
 
 (defapiget-ghubp "/user/repos"
   "List your repositories.
@@ -733,7 +747,8 @@ organization."
   "repos/#get"
   (repo) "/repos/:repo.owner.login/:repo.name")
 
-;;; Users
+
+;;; Users:
 (defapiget-ghubp "/users/:username"
   "Get a single user."
   "users/#get-a-single-user"
@@ -919,7 +934,8 @@ notifications (until you comment or get @mentioned once more)."
   "activity/notifications/#delete-a-thread-subscription"
   (thread) "/notifications/threads/:thread.id/subscription")
 
-;;; Unfiled
+
+;;; Unfiled:
 
 (defapiget-ghubp "/repos/:owner/:repo/commits/:ref/statuses"
   "List statuses for a specific ref"
