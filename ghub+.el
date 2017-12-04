@@ -104,7 +104,7 @@ PARAMS is a plist.
 
 DATA is an alist."
     (let-alist (ghubp-get-context)
-      (let ((method (upcase (symbol-name method)))
+      (let ((method (encode-coding-string (upcase (symbol-name method)) 'utf-8))
             (params (apiwrap-plist->alist params)))
         (funcall (or ghubp-request-override-function
                      #'ghub-request)
