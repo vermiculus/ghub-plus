@@ -957,6 +957,11 @@ notifications (until you comment or get @mentioned once more)."
   "issues/comments/#create-a-comment"
   (repo issue) "/repos/:repo.owner.login/:repo.name/issues/:issue.number/comments")
 
+(defapiget-ghubp "/repos/:owner/:repo/commits"
+  "List commits on a repository"
+  "repos/commits/#list-commits-on-a-repository"
+  (repo) "/repos/:repo.owner.login/:repo.name/commits")
+
 (defun ghubp-url-parse (url)
   "Parse URL for its type and API callback.
 
