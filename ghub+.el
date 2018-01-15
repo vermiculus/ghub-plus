@@ -5,8 +5,8 @@
 ;; Author: Sean Allred <code@seanallred.com>
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
-;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.3"))
-;; Package-Version: 0.2
+;; Package-Requires: ((emacs "25") (ghub "1.2") (apiwrap "0.4"))
+;; Package-Version: 0.2.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -745,7 +745,9 @@ organization."
 (defapiget-ghubp "/repos/:owner/:repo"
   "Get a specific repository object."
   "repos/#get"
-  (repo) "/repos/:repo.owner.login/:repo.name")
+  (repo) "/repos/:repo.owner.login/:repo.name"
+  :condition-case
+  ((ghub-404 nil)))
 
 
 ;;; Users:
