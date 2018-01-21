@@ -887,11 +887,10 @@ This is accessible by anyone."
   "Get the user's notifications."
   "activity/notifications/#list-your-notifications")
 
-(defapiget-ghubp
-  "/repos/:owner/:repo/notifications"
+(defapiget-ghubp "/repos/:owner/:repo/notifications"
   "List your notifications in a repository."
   "activity/notifications/#list-your-notifications-in-a-repository"
-  (user repo) "/repos/:user.login/:repo.name/notifications")
+  (repo) "/repos/:repo.owner.login/:repo.name/notifications")
 
 (defapiput-ghubp "/notifications"
   "Mark as read.
@@ -904,7 +903,7 @@ view on GitHub."
 Marking all notifications in a repository as \"read\" removes
 them from the default view on GitHub."
   "activity/notifications/#mark-notifications-as-read-in-a-repository"
-  (user repo) "/repos/:user.login/:repo.name/notifications")
+  (repo) "/repos/:repo.owner.login/:repo.name/notifications")
 
 (defapiget-ghubp "/notifications/threads/:id"
   "View a single thread."
