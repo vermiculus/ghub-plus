@@ -117,13 +117,15 @@ DATA is an alist."
                  :auth .auth
                  :host .host))))
 
-  (defmacro ghubp-catch (&rest handlers)
+  (defmacro ghubp-catch* (&rest handlers)
     "Catch some Ghub signals with HANDLERS.
 Each element of HANDLERS should be a list of
 
     (HTTP-CODE HANDLER)
 
 where HTTP-CODE is an error code like 404.
+
+For use inside `:condition-case' endpoint configurations.
 
 For now, care is taken to support older versions of Ghub."
     (let (general code handler form)
@@ -770,7 +772,7 @@ organization."
   "repos/#get"
   (repo) "/repos/:repo.owner.login/:repo.name"
   :condition-case
-  (ghubp-catch
+  (ghubp-catch*
    (404 nil)))
 
 
@@ -781,7 +783,7 @@ organization."
   "repos/branches/#get-branch"
   (repo branch) "/repos/:repo.owner.login/:repo.name/branches/:branch.name"
   :condition-case
-  (ghubp-catch
+  (ghubp-catch*
    (404 nil)))
 
 
