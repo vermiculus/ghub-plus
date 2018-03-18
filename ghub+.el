@@ -117,6 +117,28 @@ DATA is an alist."
                  :auth .auth
                  :host .host))))
 
+  (defmacro ghubp-catch (&rest handlers)
+    "Catch some Ghub signals with HANDLERS.
+Each element of HANDLERS should be a list of
+
+    (HTTP-CODE HANDLER)
+
+where HTTP-CODE is an error code like 404.
+
+For now, care is taken to support older versions of Ghub."
+    (let (general code handler form)
+      (dolist (pair handlers)
+        (setq code (car pair)
+              handler (cdr pair))
+        (push (cons (intern (format "ghub-%d" code)) handler) form)
+        (push (cons code handler) general))
+      (setcdr (last form)
+              `((ghub-http-error
+                 (pcase it
+                   ,@general
+                   (_ (signal (car it) (cdr it)))))))
+      form))
+
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
       (branch . "BRANCH is a branch object of the form returned by `ghubp-get-repos-owner-repo-branches-branch'.")
@@ -748,11 +770,8 @@ organization."
   "repos/#get"
   (repo) "/repos/:repo.owner.login/:repo.name"
   :condition-case
-  ((ghub-404 nil)
-   (ghub-http-error
-    (pcase (cadr it)
-      (404 nil)
-      (_ (signal 'ghub-http-error (cdr it)))))))
+  (ghubp-catch
+   (404 nil)))
 
 
 ;;; Branches:
@@ -762,11 +781,8 @@ organization."
   "repos/branches/#get-branch"
   (repo branch) "/repos/:repo.owner.login/:repo.name/branches/:branch.name"
   :condition-case
-  ((ghub-404 nil)
-   (ghub-http-error
-    (pcase (cadr it)
-      (404 nil)
-      (_ (signal 'ghub-http-error (cdr it)))))))
+  (ghubp-catch
+   (404 nil)))
 
 
 ;;; Users:
