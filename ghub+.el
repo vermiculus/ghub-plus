@@ -748,7 +748,11 @@ organization."
   "repos/#get"
   (repo) "/repos/:repo.owner.login/:repo.name"
   :condition-case
-  ((ghub-404 nil)))
+  ((ghub-404 nil)
+   (ghub-http-error
+    (pcase (cadr it)
+      (404 nil)
+      (_ (signal 'ghub-http-error (cdr it)))))))
 
 
 ;;; Branches:
@@ -758,7 +762,11 @@ organization."
   "repos/branches/#get-branch"
   (repo branch) "/repos/:repo.owner.login/:repo.name/branches/:branch.name"
   :condition-case
-  ((ghub-404 nil)))
+  ((ghub-404 nil)
+   (ghub-http-error
+    (pcase (cadr it)
+      (404 nil)
+      (_ (signal 'ghub-http-error (cdr it)))))))
 
 
 ;;; Users:
