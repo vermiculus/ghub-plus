@@ -130,17 +130,16 @@ For use inside `:condition-case' endpoint configurations.
 See also `ghub-catch' and `ghub-catch*'.
 
 For now, care is taken to support older versions of Ghub."
-    (let (general code handler form)
+    (let (code handler form)
       (dolist (pair handlers)
         (setq code (car pair)
               handler (cdr pair))
-        (push (cons (intern (format "ghub-%d" code)) handler) form)
-        (push (cons code handler) general))
+        (push (cons (intern (format "ghub-%d" code)) handler) form))
       (setcdr (last form)
               `((ghub-http-error
-                 (pcase it
-                   ,@general
-                   (_ (signal (car it) (cdr it)))))))
+                 (pcase ,error-symbol
+                   ,@handlers
+                   (_ (signal (car ,error-symbol) (cdr ,error-symbol)))))))
       form))
 
   (defmacro ghubp-catch* (&rest handlers)
