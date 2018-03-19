@@ -1006,7 +1006,10 @@ notifications (until you comment or get @mentioned once more)."
 (defapiget-ghubp "/repos/:owner/:repo/commits/:ref/status"
   "Get the combined status for a specific ref"
   "repos/statuses/#get-the-combined-status-for-a-specific-ref"
-  (repo ref) "/repos/:repo.owner.login/:repo.name/commits/:ref/status")
+  (repo ref) "/repos/:repo.owner.login/:repo.name/commits/:ref/status"
+  :condition-case
+  (ghubp-catch*
+   (404 nil)))
 
 (defapipost-ghubp "/repos/:owner/:repo/forks"
   "Create a fork for the authenticated user."
