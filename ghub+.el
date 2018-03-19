@@ -287,7 +287,8 @@ This method is intended for use with callbacks."
 
 (defun ghubp-base-html-url ()
   "Get the base HTML URL from `ghub-default-host'"
-  (if-let ((host (magit-get "github" "host")))
+  (if-let ((host (car (ignore-errors
+			(process-lines "git" "config" "github.host")))))
       (and (string-match (rx bos (group (* any)) "/api/v3" eos) host)
            (match-string 1 host))
     "https://github.com"))
