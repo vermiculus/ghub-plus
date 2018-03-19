@@ -117,6 +117,12 @@ DATA is an alist."
                  :auth .auth
                  :host .host))))
 
+  ;; If ghub-404 is not defined as an error, define it.
+  ;; This will be necessary until Ghub releases v2.
+  ;; See also #8.
+  (unless (get 'ghub-404 'error-conditions)
+    (define-error 'ghub-404 "Not Found" 'ghub-http-error))
+
   (defun ghubp--catch (error-symbol &rest handlers)
     "Catch some Ghub signals as ERROR-SYMBOL with HANDLERS.
 Each element of HANDLERS should be a list of
