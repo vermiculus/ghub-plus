@@ -117,8 +117,8 @@ DATA is an alist."
                  :auth .auth
                  :host .host))))
 
-  (defmacro ghubp-catch* (&rest handlers)
-    "Catch some Ghub signals with HANDLERS.
+  (defun ghubp--catch (error-symbol &rest handlers)
+    "Catch some Ghub signals as ERROR-SYMBOL with HANDLERS.
 Each element of HANDLERS should be a list of
 
     (HTTP-CODE HANDLER)
@@ -126,6 +126,8 @@ Each element of HANDLERS should be a list of
 where HTTP-CODE is an error code like 404.
 
 For use inside `:condition-case' endpoint configurations.
+
+See also `ghub-catch' and `ghub-catch*'.
 
 For now, care is taken to support older versions of Ghub."
     (let (general code handler form)
@@ -140,6 +142,22 @@ For now, care is taken to support older versions of Ghub."
                    ,@general
                    (_ (signal (car it) (cdr it)))))))
       form))
+
+  (defmacro ghubp-catch* (&rest handlers)
+    "Catch some Ghub signals with HANDLERS.
+For use inside `:condition-case' endpoint configurations.
+
+See `ghubp--catch'."
+    (apply #'ghubp--catch 'it handlers))
+
+  (defmacro ghubp-catch (error-symbol form &rest handlers)
+    "Catch some Ghub signals as ERROR_SYMBOL in FORM with HANDLERS.
+For general use.
+
+See `ghubp--catch'"
+    (declare (indent 2))
+    `(condition-case ,error-symbol ,form
+       ,@(apply #'ghubp--catch error-symbol handlers)))
 
   (apiwrap-new-backend "GitHub" "ghubp"
     '((repo . "REPO is a repository alist of the form returned by `ghubp-get-user-repos'.")
