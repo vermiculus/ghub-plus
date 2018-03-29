@@ -143,7 +143,7 @@ For now, care is taken to support older versions of Ghub."
         (push (cons (intern (format "ghub-%d" code)) handler) form))
       (setcdr (last form)
               `((ghub-http-error
-                 (pcase ,error-symbol
+                 (pcase (cadr ,error-symbol)
                    ,@handlers
                    (_ (signal (car ,error-symbol) (cdr ,error-symbol)))))))
       form))
