@@ -161,6 +161,8 @@ For general use.
 
 See `ghubp--catch'"
     (declare (indent 2))
+    (when (eq error-symbol '_)
+      (setq error-symbol (cl-gensym)))
     `(condition-case ,error-symbol ,form
        ,@(apply #'ghubp--catch error-symbol handlers)))
 
