@@ -133,7 +133,7 @@ where HTTP-CODE is an error code like 404.
 
 For use inside `:condition-case' endpoint configurations.
 
-See also `ghub-catch' and `ghub-catch*'.
+See also `ghubp-catch' and `ghubp-catch*'.
 
 For now, care is taken to support older versions of Ghub."
     (let (code handler form)
@@ -151,6 +151,8 @@ For now, care is taken to support older versions of Ghub."
   (defmacro ghubp-catch* (&rest handlers)
     "Catch some Ghub signals with HANDLERS.
 For use inside `:condition-case' endpoint configurations.
+
+For advanced error handling, the error is bound to the symbol `it'.
 
 See `ghubp--catch'."
     (apply #'ghubp--catch 'it handlers))
