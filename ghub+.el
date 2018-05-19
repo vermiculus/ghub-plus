@@ -240,7 +240,7 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
   (alist-get 'remaining (ghubp-ratelimit)))
 
 (defun ghubp-ratelimit ()
-  "Get `/rate_limit.rate' using `ghub-response-headers'.
+  "Get `/rate_limit.rate'.
 Returns nil if the service is not rate-limited.  Otherwise,
 returns an alist with the following properties:
 
@@ -251,15 +251,23 @@ returns an alist with the following properties:
      number of requests remaining for this hour.
 
   `.reset'
-     time value of instant `.remaining' resets to `.limit'."
-  (when (and ghub-response-headers
-             (assoc-string "X-RateLimit-Limit" ghub-response-headers))
-    (let* ((headers (list "X-RateLimit-Limit" "X-RateLimit-Remaining" "X-RateLimit-Reset"))
-           (headers (mapcar (lambda (x) (string-to-number (ghubp-header x))) headers)))
-      `((limit     . ,(nth 0 headers))
-        (remaining . ,(nth 1 headers))
-        (reset     . ,(seconds-to-time
-                       (nth 2 headers)))))))
+     time value of instant `.remaining' resets to `.limit'.
+
+Tries to use response headers if possible."
+  ;; todo: bug when headers are from other host
+  (if (and ghub-response-headers
+           (assoc-string "X-RateLimit-Limit" ghub-response-headers))
+      ;; get rate limit from headers
+      (let* ((headers (list "X-RateLimit-Limit" "X-RateLimit-Remaining" "X-RateLimit-Reset"))
+             (headers (mapcar (lambda (x) (string-to-number (ghubp-header x))) headers)))
+        `((limit     . ,(nth 0 headers))
+          (remaining . ,(nth 1 headers))
+          (reset     . ,(seconds-to-time
+                         (nth 2 headers)))))
+    (ghubp-catch _
+        (cdr (assq 'rate (ghub-get "/rate_limit")))
+      ;; Enterprise returns 404 if rate limiting is disabled
+      (404 nil))))
 
 (defun ghubp--follow (method resource &optional params data)
   "Using METHOD, follow the RESOURCE link with PARAMS and DATA.
