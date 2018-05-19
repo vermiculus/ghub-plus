@@ -266,7 +266,7 @@ instead of actually hitting /rate_limit."
           (reset     . ,(seconds-to-time
                          (nth 2 headers)))))
     (ghubp-catch _
-        (let-alist (ghub-get "/rate_limit")
+        (let-alist (ghubp-request 'get "/rate_limit" nil nil)
           .resources.core)
       ;; Enterprise returns 404 if rate limiting is disabled
       (404 nil))))
