@@ -239,7 +239,7 @@ See URL `http://emacs.stackexchange.com/a/31050/2264'."
   (declare (obsolete 'ghubp-ratelimit "2017-10-17"))
   (alist-get 'remaining (ghubp-ratelimit)))
 
-(defun ghubp-ratelimit ()
+(defun ghubp-ratelimit (&optional no-headers)
   "Get `/rate_limit.rate'.
 Returns nil if the service is not rate-limited.  Otherwise,
 returns an alist with the following properties:
@@ -253,11 +253,12 @@ returns an alist with the following properties:
   `.reset'
      time value of instant `.remaining' resets to `.limit'.
 
-Tries to use response headers if possible."
+Unless NO-HEADERS is non-nil, tries to use response headers
+instead of actually hitting /rate_limit."
   ;; todo: bug when headers are from other host
-  (if (and ghub-response-headers
+  (if (and (not no-headers)
+           ghub-response-headers
            (assoc-string "X-RateLimit-Limit" ghub-response-headers))
-      ;; get rate limit from headers
       (let* ((headers (list "X-RateLimit-Limit" "X-RateLimit-Remaining" "X-RateLimit-Reset"))
              (headers (mapcar (lambda (x) (string-to-number (ghubp-header x))) headers)))
         `((limit     . ,(nth 0 headers))
