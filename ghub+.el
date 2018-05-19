@@ -265,7 +265,8 @@ Tries to use response headers if possible."
           (reset     . ,(seconds-to-time
                          (nth 2 headers)))))
     (ghubp-catch _
-        (cdr (assq 'rate (ghub-get "/rate_limit")))
+        (let-alist (ghub-get "/rate_limit")
+          .resources.core)
       ;; Enterprise returns 404 if rate limiting is disabled
       (404 nil))))
 
