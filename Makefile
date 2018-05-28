@@ -24,7 +24,9 @@ clean:
 	rm -rf .elpa.test/
 	rm -f emacs-travis.mk	# delete scripts
 	rm -f emake.el
+
 setup: emacs emake.el
+
 install: .elpa/
 
 compile:
@@ -37,6 +39,7 @@ test-ert: .elpa/
 
 test-checkdoc: .elpa/
 	$(EMAKE) test checkdoc
+
 ifeq ($(CI),true)
 emacs: emacs-travis.mk		# This is CI.  Emacs may not be available, so install it.
 	export PATH="$(HOME)/bin:$(PATH)"

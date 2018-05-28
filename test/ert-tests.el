@@ -1,6 +1,6 @@
 (require 'ghub+)
 
-(load "linter.el")
+(load "linter")
 
 (ert-deftest basic ()
   (should
