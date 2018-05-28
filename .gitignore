@@ -1,2 +1,4 @@
 *.elc
-/.cask/
+/emake.el
+/.elpa/
+/.elpa.test/

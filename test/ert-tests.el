@@ -1,5 +1,7 @@
 (require 'ghub+)
 
+(load "linter.el")
+
 (ert-deftest basic ()
   (should
    (let* ((repo '((owner (login . "vermiculus"))
