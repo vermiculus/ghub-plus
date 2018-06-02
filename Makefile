@@ -1,7 +1,11 @@
 EENVS  = PACKAGE_FILE="ghub+.el"
 EENVS += PACKAGE_LISP="ghub+.el"
 EENVS += PACKAGE_TESTS="test/ert-tests.el"
+ifeq ($(MELPA_STABLE),true)
+EENVS += PACKAGE_ARCHIVES="gnu melpa-stable"
+else
 EENVS += PACKAGE_ARCHIVES="gnu melpa"
+endif
 EENVS += PACKAGE_TEST_DEPS="dash s"
 EENVS += PACKAGE_TEST_ARCHIVES="melpa"
 EMAKE := $(EENVS) emacs -batch -l emake.el \
