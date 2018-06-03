@@ -8,7 +8,8 @@ EENVS += PACKAGE_ARCHIVES="gnu melpa"
 endif
 EENVS += PACKAGE_TEST_DEPS="dash s"
 EENVS += PACKAGE_TEST_ARCHIVES="melpa"
-EMAKE := $(EENVS) emacs -batch -l emake.el \
+EMAKE = $(EENVS) emacs -batch -l emake.el \
+	$(EMACS_ARGS) \
 	--eval "(setq checkdoc-arguments-in-order-flag nil)" \
 	--eval "(emake (pop argv))"
 .PHONY: clean setup install compile test
@@ -37,6 +38,7 @@ compile:
 	rm -f *.elc
 	$(EMAKE) compile ~error-on-warn
 
+test: EMACS_ARGS=-L ./test/
 test: test-ert test-checkdoc
 test-ert: .elpa/
 	$(EMAKE) test		# could also do $(EMAKE) test ert
