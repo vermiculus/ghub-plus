@@ -38,5 +38,5 @@ notifications:
     on_failure: change
   webhooks:
     on_success: change
-    on_failure: always
+    on_failure: change
     on_start: never
