@@ -1,57 +1,22 @@
-EENVS  = PACKAGE_FILE="ghub+.el"
-EENVS += PACKAGE_LISP="ghub+.el"
-EENVS += PACKAGE_TESTS="test/ert-tests.el"
+EMAKE_SHA1 = 1b23379eb5a9f82d3e2d227d0f217864e40f23e0
+EMACS_ARGS = --eval "(setq checkdoc-arguments-in-order-flag nil)"
+PACKAGE_BASENAME = ghub+
+
 ifeq ($(MELPA_STABLE),true)
-EENVS += PACKAGE_ARCHIVES="gnu melpa-stable"
+PACKAGE_ARCHIVES = gnu melpa-stable
 else
-EENVS += PACKAGE_ARCHIVES="gnu melpa"
+PACKAGE_ARCHIVES = gnu melpa
 endif
-EENVS += PACKAGE_TEST_DEPS="dash s"
-EENVS += PACKAGE_TEST_ARCHIVES="melpa"
-EMAKE = $(EENVS) emacs -batch -l emake.el \
-	$(EMACS_ARGS) \
-	--eval "(setq checkdoc-arguments-in-order-flag nil)" \
-	--eval "(emake (pop argv))"
-.PHONY: clean setup install compile test
+PACKAGE_TEST_DEPS = dash s
+PACKAGE_TEST_ARCHIVES = gnu melpa
 
-emake.el:
-	wget 'https://raw.githubusercontent.com/vermiculus/emake.el/master/emake.el'
+include emake.mk
 
-emacs-travis.mk:
-	wget 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+.PHONY: clean
 
-.elpa/:
-	$(EMAKE) install
+clean: ## Clean generated files
+	rm -rf $(EMAKE_WORKDIR)
+	rm *.elc
 
-clean:
-	rm -f *.elc		# delete compiled files
-	rm -rf .elpa/		# delete dependencies
-	rm -rf .elpa.test/
-	rm -f emacs-travis.mk	# delete scripts
-	rm -f emake.el
-
-setup: emacs emake.el
-
-install: .elpa/
-
-compile:
-	rm -f *.elc
-	$(EMAKE) compile ~error-on-warn
-
-test: EMACS_ARGS=-L ./test/
-test: test-ert test-checkdoc
-test-ert: .elpa/
-	$(EMAKE) test		# could also do $(EMAKE) test ert
-
-test-checkdoc: .elpa/
-	$(EMAKE) test checkdoc
-
-ifeq ($(CI),true)
-emacs: emacs-travis.mk		# This is CI.  Emacs may not be available, so install it.
-	export PATH="$(HOME)/bin:$(PATH)"
-	make -f emacs-travis.mk install_emacs
-	emacs --version
-else
-emacs:				# This is not CI.  Emacs should already be available.
-	which emacs && emacs --version
-endif
+test-ert: EMACS_ARGS = -L ./test/
+#test: test-ert
