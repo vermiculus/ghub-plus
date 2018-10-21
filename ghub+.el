@@ -633,6 +633,12 @@ By default, Issue Comments are ordered by ascending ID."
 
 ;;; Pull Request Reviews:
 
+(defapiget-ghubp "/repos/:owner/:repo/collaborators"
+  "List collaborators.
+This call lists all the repo's collaborators."
+  "repos/collaborators/#list-collaborators"
+  (repo) "/repos/:repo.owner.login/:repo.name/collaborators")
+
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews"
   "List reviews on a pull request."
   "pulls/reviews/#list-reviews-on-a-pull-request"
@@ -712,7 +718,10 @@ By default, Issue Comments are ordered by ascending ID."
 (defapipost-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
   "Create a review request."
   "pulls/review_requests/#create-a-review-request"
-  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers")
+  (repo pull-request) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/requested_reviewers"
+  :pre-process-data
+  (lambda (users)
+    `((reviewers . ,(ghubp-get-in-all '(login) users)))))
 
 (defapidelete-ghubp "/repos/:owner/:repo/pulls/:number/requested_reviewers"
   "Delete a review request."
