@@ -844,7 +844,10 @@ organization."
 (defapiget-ghubp "/users/:username"
   "Get a single user."
   "users/#get-a-single-user"
-  (user) "/users/:user.login")
+  (user) "/users/:user.login"
+  :condition-case
+  (ghubp-catch*
+   (404 nil)))
 
 (defapiget-ghubp "/user"
   "Get the authenticated user."
