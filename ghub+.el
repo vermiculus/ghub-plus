@@ -328,6 +328,11 @@ See that documentation for RESOURCE, PARAMS, and DATA."
     (ghub--token host user package t)))
 
 
+;;; Errors:
+(define-error 'ghubp-error "Ghub+ error" 'ghub-error)
+(define-error 'ghubp-error-review-is-active "This review is active" 'ghubp-error)
+
+
 ;;; Issues:
 
 (defapiget-ghubp "/issues"
@@ -652,7 +657,10 @@ This call lists all the repo's collaborators."
 (defapidelete-ghubp "/repos/:owner/:repo/pulls/:number/reviews/:id"
   "Delete a pending review."
   "pulls/reviews/#delete-a-pending-review"
-  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id")
+  (repo pull-request review) "/repos/:repo.owner.login/:repo.name/pulls/:pull-request.number/reviews/:review.id"
+  :condition-case
+  (ghubp-catch*
+   (422 (signal 'ghubp-error-review-is-active nil))))
 
 (defapiget-ghubp "/repos/:owner/:repo/pulls/:number/reviews/:id/comments"
   "Get comments for a single review."
