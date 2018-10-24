@@ -6,7 +6,7 @@
 ;; Keywords: extensions, multimedia, tools
 ;; Homepage: https://github.com/vermiculus/ghub-plus
 ;; Package-Requires: ((emacs "25") (ghub "2.0") (apiwrap "0.5"))
-;; Package-Version: 0.3
+;; Package-Version: 0.4
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -133,20 +133,11 @@ where HTTP-CODE is an error code like 404.
 
 For use inside `:condition-case' endpoint configurations.
 
-See also `ghubp-catch' and `ghubp-catch*'.
-
-For now, care is taken to support older versions of Ghub."
-    (let (code handler form)
-      (dolist (pair handlers)
-        (setq code (car pair)
-              handler (cdr pair))
-        (push (cons (intern (format "ghub-%d" code)) handler) form))
-      (setcdr (last form)
-              `((ghub-http-error
-                 (pcase (cadr ,error-symbol)
-                   ,@handlers
-                   (_ (signal (car ,error-symbol) (cdr ,error-symbol)))))))
-      form))
+See also `ghubp-catch' and `ghubp-catch*'."
+    `((ghub-http-error
+       (pcase (cadr ,error-symbol)
+         ,@handlers
+         (_ (signal (car ,error-symbol) (cdr ,error-symbol)))))))
 
   (defmacro ghubp-catch* (&rest handlers)
     "Catch some Ghub signals with HANDLERS.
