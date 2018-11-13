@@ -30,6 +30,7 @@
 
 (require 'url)
 (require 'cl-lib)
+(require 'subr-x)
 (require 'ghub)
 (require 'apiwrap)
 
