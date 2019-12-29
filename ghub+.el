@@ -311,7 +311,7 @@ See that documentation for RESOURCE, PARAMS, and DATA."
 
 (defun ghubp-username ()
   "Exposes `ghub--username'."
-  (ghub--username (ghub--host)))
+  (ghub--username (ghub--host 'github)))
 
 (defun ghubp-token (package)
   "Exposes `ghub--token' for PACKAGE in a friendly way."
